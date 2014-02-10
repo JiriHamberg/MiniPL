@@ -1,0 +1,11 @@
+var asdf : int := 0;
+
+for asdf in 2 .. 23 do 
+	print "LOL!!!";
+	print "asdf!!!";
+end for;
+
+
+a := 1000;
+
+asdf hgf$hgf $ $  
