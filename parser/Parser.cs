@@ -216,6 +216,7 @@ namespace CompilersProject
 				expect (Category.Rigth_Bracket);
 				builder.offer (accepted);
 			} else {
+				//error? expecting expression
 				addError(token, Category.Literal_Integer, 
 						 Category.Literal_String,
 						 Category.Identifier,
