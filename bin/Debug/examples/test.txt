@@ -1,11 +1,14 @@
-var asdf : int := 0;
+var asdf : int := (5+3)*5;
 
 for asdf in 2 .. 23 do 
+	for aaa in 2 + 5 .. asdf do
+		print aaa;
+	end for;
+	
 	print "LOL!!!";
 	print "asdf!!!";
 end for;
 
 
 a := 1000;
-
-asdf hgf$hgf $ $  
+ 

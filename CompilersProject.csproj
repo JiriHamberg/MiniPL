@@ -38,9 +38,10 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="scanner\Scanner.cs" />
     <Compile Include="models\Token.cs" />
-    <Compile Include="models\TokenCategory.cs" />
     <Compile Include="models\AbstractSyntaxTree.cs" />
     <Compile Include="parser\Parser.cs" />
+    <Compile Include="models\Category.cs" />
+    <Compile Include="parser\ExpressionBuilder.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

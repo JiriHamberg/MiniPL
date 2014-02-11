@@ -13,32 +13,37 @@ namespace CompilersProject
 		private Token accepted;
 
 		//ast that we are building
-		private AbstractSyntaxTree ast = new AbstractSyntaxTree();
+		//private AbstractSyntaxTree ast = new AbstractSyntaxTree();
 
 		public Parser (Scanner scanner)
 		{
 			this.scanner = scanner;
 		}
 
-		public void Parse ()
+		public AbstractSyntaxTree Parse ()
 		{
+			AbstractSyntaxTree ast = new AbstractSyntaxTree();
 			getNextToken ();
 			while (scanner.HasNext()) {
-				statements ();
+				ast.statements.mergeStatements(statements ());
 			}
+			return ast;
 		}
 
 
 		private void getNextToken ()
 		{
 			//todo: handle end of stream !!!
-
-			token = scanner.Next ();
+			if (scanner.HasNext ()) {
+				token = scanner.Next ();
+			} else {
+				token = Token.errorToken();
+			}
 		}
 
-		private bool accept (params TokenCategory[] categories)
+		private bool accept (params Category[] categories)
 		{
-			foreach (TokenCategory category in categories) {
+			foreach (Category category in categories) {
 				if(category == token.category) {
 					accepted = token;
 					getNextToken ();
@@ -49,18 +54,17 @@ namespace CompilersProject
 			return false;
 		}
 
-		private bool expect (params TokenCategory [] categories)
+		private bool expect (params Category [] categories)
 		{
-			foreach (TokenCategory category in categories) {
+			foreach (Category category in categories) {
 				if (accept(category)) return true;
 			}
 			addError (token, categories);
-			//getNextToken ();
 			recover ();
 			return false;
 		}
 
-		private void addError (Token found, params TokenCategory[] expected)
+		private void addError (Token found, params Category[] expected)
 		{
 			//todo: implement... maybe a container class for errors?
 			string error = "Error: line " + found.line + " column " + found.column;
@@ -70,124 +74,152 @@ namespace CompilersProject
 			}
 			error = error +	", but found " + found.category;
 			System.Console.WriteLine (error);
-			System.Console.WriteLine (token.lexeme);
-			//System.Console.ReadLine(); 
+			System.Console.WriteLine (token.lexeme); 
 		}
 
-		//naive recovery strategy: continue parsing from the next semicolon
+		//naive recovery strategy: continue parsing from the next token
+		//todo: implement properly
 		private void recover ()
 		{
-			while (scanner.HasNext()) {
+			/*while (scanner.HasNext()) {
 				token = scanner.Next();
-				if(token.category == TokenCategory.Semicolon) {
-					token = scanner.Next ();
+				if(token.category == Category.Semicolon) {
+					if(scanner.HasNext()) {
+						token = scanner.Next ();
+					} else {
+						token = Token.errorToken();
+					}
 				}
-			}
+			}*/
+			getNextToken ();
 		}
 
 
 		/*
-		 *  Start parser spesification
+		 *  Actual parsing and builging ast
 		 */
 
 		private Statements statements ()
 		{
 			Statements ret = new Statements();
 			ret.addStatement(statement ());
-			expect (TokenCategory.Semicolon);
+			expect (Category.Semicolon);
 
 			//maximum munch
-			TokenCategory next = token.category;
-			while (next == TokenCategory.Keyword_Var || 
-				next == TokenCategory.Identifier ||
-				next == TokenCategory.Identifier ||
-				next == TokenCategory.Keyword_For ||
-				next == TokenCategory.Function_Read ||
-				next == TokenCategory.Function_Print ||
-				next == TokenCategory.Function_Assert) {
-				//statements ();
+			while (token.category == Category.Keyword_Var || 
+				token.category == Category.Identifier ||
+				token.category == Category.Keyword_For ||
+				token.category == Category.Function_Read ||
+				token.category == Category.Function_Print ||
+				token.category == Category.Function_Assert) {
 				ret.addStatement(statement ());
-				expect (TokenCategory.Semicolon);
+				expect (Category.Semicolon);
 			}
 			return ret;
 		}
 
 		private Statement statement ()
 		{
+			Statement ret = null;
 			//variable declaration
-			if (accept (TokenCategory.Keyword_Var)) {
-				expect (TokenCategory.Identifier);
-				expect (TokenCategory.Colon);
-				expect (TokenCategory.Type_Boolean, 
-				        TokenCategory.Type_Integer,
-				        TokenCategory.Type_String);
-				if (accept (TokenCategory.Operator_Assignment)) {
-					expression ();
+			if (accept (Category.Keyword_Var)) {
+				ret = new Declaration();
+				expect (Category.Identifier);
+				((Declaration)ret).identifier = accepted;
+				expect (Category.Colon);
+				expect (Category.Type_Boolean, 
+				        Category.Type_Integer,
+				        Category.Type_String);
+				((Declaration)ret).type = accepted;
+				if (accept (Category.Operator_Assignment)) {
+					((Declaration)ret).expression = expression ();
 				}
 				//assignment
-			} else if (accept (TokenCategory.Identifier)) {
-				expect (TokenCategory.Operator_Assignment);
-				expression ();
+			} else if (accept (Category.Identifier)) {
+				ret = new Assignment();
+				((Assignment)ret).identifier = accepted;
+				expect (Category.Operator_Assignment);
+				((Assignment)ret).expression = expression ();
 				//for loop
-			} else if (accept (TokenCategory.Keyword_For)) {
-				expect (TokenCategory.Identifier);
-				expect (TokenCategory.Keyword_In);
-				expression ();
-				expect (TokenCategory.Loop_Range);
-				expression ();
-				expect (TokenCategory.Keyword_Do);
-				statements ();
-				expect (TokenCategory.Keyword_End);
-				expect (TokenCategory.Keyword_For);
+			} else if (accept (Category.Keyword_For)) {
+				ret = new ForLoop();
+				expect (Category.Identifier);
+				((ForLoop)ret).variable = accepted;
+				expect (Category.Keyword_In);
+				((ForLoop)ret).from = expression ();
+				expect (Category.Loop_Range);
+				((ForLoop)ret).to = expression ();
+				expect (Category.Keyword_Do);
+				((ForLoop)ret).statements = statements ();
+				expect (Category.Keyword_End);
+				expect (Category.Keyword_For);
 				//read
-			} else if (accept (TokenCategory.Function_Read)) {
-				expect (TokenCategory.Identifier);
+			} else if (accept (Category.Function_Read)) {
+				ret = new Read();
+				expect (Category.Identifier);
+				((Read)ret).identifier = accepted;
 				//print
-			} else if (accept (TokenCategory.Function_Print)) {
-				expression ();
+			} else if (accept (Category.Function_Print)) {
+				ret = new Print();
+				((Print)ret).expression = expression ();
 				//assert
-			} else if (accept (TokenCategory.Function_Assert)) {
-				expect (TokenCategory.Left_Bracket);
-				expression ();
-				expect (TokenCategory.Rigth_Bracket);
+			} else if (accept (Category.Function_Assert)) {
+				ret = new Assert();
+				expect (Category.Left_Bracket);
+				((Assert)ret).assertion = expression ();
+				expect (Category.Rigth_Bracket);
 			} else {
 				//error? expecting a statement
 			}
+			return ret;
 		}
 
-		private void expression ()
+		private Expression expression ()
 		{
-			if (accept (TokenCategory.Operator_Not)) {
-				operand ();
-			}else {
-				operand ();
-				if (accept (TokenCategory.Operator_Addition,
-				        TokenCategory.Operator_Division,
-				        TokenCategory.Operator_Multiplication,
-				        TokenCategory.Operator_Substraction,
-				        TokenCategory.Operator_Equality,
-				        TokenCategory.Operator_Less,
-					    TokenCategory.Operator_And)) {
-					operand ();
+			ExpressionBuilder builder = new ExpressionBuilder();
+			buildExpression(builder);
+			return builder.build();
+		}
+
+		private void buildExpression(ExpressionBuilder builder) 
+		{
+			if (accept (Category.Operator_Not)) {
+				builder.offer(accepted);
+				operand (builder);
+			} else {
+				operand (builder);
+				if (accept (Category.Operator_Addition,
+				        Category.Operator_Division,
+				        Category.Operator_Multiplication,
+				        Category.Operator_Substraction,
+				        Category.Operator_Equality,
+				        Category.Operator_Less,
+					    Category.Operator_And)) {
+					builder.offer(accepted);
+					operand (builder);
 				}
 			}
 		}
 
-		private void operand ()
+		private void operand (ExpressionBuilder builder)
 		{
 			//literal or identifier
-			if (accept (TokenCategory.Literal_Integer, 
-						TokenCategory.Literal_String,
-						TokenCategory.Identifier)) {
+			if (accept (Category.Literal_Integer, 
+						Category.Literal_String,
+						Category.Identifier)) {
+				builder.offer(accepted);
+
 			//nested expression
-			} else if (accept (TokenCategory.Left_Bracket)) {
-				expression ();
-				expect (TokenCategory.Rigth_Bracket);
+			} else if (accept (Category.Left_Bracket)) {
+				builder.offer(accepted);
+				buildExpression (builder);
+				expect (Category.Rigth_Bracket);
+				builder.offer (accepted);
 			} else {
-				addError(token, TokenCategory.Literal_Integer, 
-						 TokenCategory.Literal_String,
-						 TokenCategory.Identifier,
-				         TokenCategory.Left_Bracket);
+				addError(token, Category.Literal_Integer, 
+						 Category.Literal_String,
+						 Category.Identifier,
+				         Category.Left_Bracket);
 			}
 		}
 

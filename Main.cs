@@ -16,8 +16,10 @@ namespace CompilersProject
 
 			System.Console.WriteLine("Scanning file " + path + " ...");
 
-			parser.Parse();
+			AbstractSyntaxTree ast  = parser.Parse();
 
+			System.Console.WriteLine(ast);
+			
 
 			/*while (scanner.HasNext ()) {
 				Token next = scanner.Next ();

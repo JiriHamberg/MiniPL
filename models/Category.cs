@@ -2,7 +2,7 @@ using System;
 
 namespace CompilersProject
 {
-	public enum TokenCategory
+	public enum Category
 	{
 		Identifier,
 

@@ -8,32 +8,33 @@ namespace CompilersProject
 	{
 		private const int END_OF_STREAM = -1;
 
-		private static Dictionary<char, TokenCategory> simpleLexemes = new Dictionary<char, TokenCategory>()
+		private static Dictionary<char, Category> simpleLexemes = new Dictionary<char, Category>()
 		{
-			{'(', TokenCategory.Rigth_Bracket},
-			{')', TokenCategory.Left_Bracket},
-			{'<', TokenCategory.Operator_Less},
-			{'=', TokenCategory.Operator_Equality},
-			{'&', TokenCategory.Operator_And},
-			{'!', TokenCategory.Operator_Not},
-			{'+', TokenCategory.Operator_Addition},
-			{'*', TokenCategory.Operator_Multiplication},
-			{';', TokenCategory.Semicolon}
+			{'(', Category.Left_Bracket},
+			{')', Category.Rigth_Bracket},
+			{'<', Category.Operator_Less},
+			{'=', Category.Operator_Equality},
+			{'&', Category.Operator_And},
+			{'!', Category.Operator_Not},
+			{'+', Category.Operator_Addition},
+			{'*', Category.Operator_Multiplication},
+			{'/', Category.Operator_Division},
+			{';', Category.Semicolon}
 		};
 
-		private static Dictionary<String, TokenCategory> reservedWords = new Dictionary<string, TokenCategory>()
+		private static Dictionary<String, Category> reservedWords = new Dictionary<string, Category>()
 		{
-			{"for", TokenCategory.Keyword_For},
-			{"do", TokenCategory.Keyword_Do},
-			{"end", TokenCategory.Keyword_End},
-			{"in", TokenCategory.Keyword_In},
-			{"var", TokenCategory.Keyword_Var},
-			{"assert", TokenCategory.Function_Assert},
-			{"print", TokenCategory.Function_Print},
-			{"read", TokenCategory.Function_Read},
-			{"bool", TokenCategory.Type_Boolean},
-			{"string", TokenCategory.Type_String},
-			{"int", TokenCategory.Type_Integer}
+			{"for", Category.Keyword_For},
+			{"do", Category.Keyword_Do},
+			{"end", Category.Keyword_End},
+			{"in", Category.Keyword_In},
+			{"var", Category.Keyword_Var},
+			{"assert", Category.Function_Assert},
+			{"print", Category.Function_Print},
+			{"read", Category.Function_Read},
+			{"bool", Category.Type_Boolean},
+			{"string", Category.Type_String},
+			{"int", Category.Type_Integer}
 		};
 
 		//todo: maybe use linked list as the buffer instead of queue since C# queue sucks
@@ -43,7 +44,7 @@ namespace CompilersProject
 		private int column = 1;
  
 		private String lexeme;
-		private TokenCategory category;
+		private Category category;
 		private int lexeme_begin_line = -1;
 		private int lexeme_begin_column = -1;
 
@@ -88,7 +89,7 @@ namespace CompilersProject
 		private Token scanNextToken ()
 		{
 			lexeme = "";
-			category = TokenCategory.NONE;
+			category = Category.NONE;
 			lexeme_begin_line = -1;
 			lexeme_begin_column = -1;
 
@@ -124,27 +125,27 @@ namespace CompilersProject
 			} 
 			else if (current == ':') {
 				if(peekChar () == '=') {
-					category = TokenCategory.Operator_Assignment;
+					category = Category.Operator_Assignment;
 					lexeme += nextChar ();
 				}
 				else {
-					category = TokenCategory.Colon;
+					category = Category.Colon;
 				}
 			} else if (Char.IsLetter (current)) { //indentifier, keyword, function, etc.
 				readWhile ( x => Char.IsLetterOrDigit(x));
 			} 
 			else if (Char.IsNumber (current)) { //integer literal
-				category = TokenCategory.Literal_Integer;
+				category = Category.Literal_Integer;
 				readWhile (x => Char.IsDigit(x));
 			} 
 			else if(current == '"') { //string literal
-				category = TokenCategory.Literal_String;
+				category = Category.Literal_String;
 				readWhile (x => x != '"');
 				lexeme += nextChar ();
 			}
 			else if ( current == '.') {
 				if(peekChar() == '.') {
-					category = TokenCategory.Loop_Range;
+					category = Category.Loop_Range;
 					lexeme += nextChar();
 				}
 			}
@@ -152,14 +153,14 @@ namespace CompilersProject
 
 		private void decideCategory () 
 		{
-			if (category != TokenCategory.NONE) { //already decided during readLexeme
+			if (category != Category.NONE) { //already decided during readLexeme
 				return;
 			} else if (reservedWords.ContainsKey (lexeme)) {
 				reservedWords.TryGetValue (lexeme, out category);
 			} else if (isValidIdentifier (lexeme)){ 
-				category = TokenCategory.Identifier;
+				category = Category.Identifier;
 			} else{
-				category = TokenCategory.NONE; //marks invalid identifier
+				category = Category.NONE; //marks invalid identifier
 			}
 		}
 
