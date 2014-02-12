@@ -10,13 +10,25 @@ namespace CompilersProject
 
 			String path = "examples/test.txt";
 			StreamReader file = File.OpenText(path);
-			Scanner scanner = new Scanner(file);
-		
-			Parser parser = new Parser(scanner);
-
+			ErrorContainer errors = new ErrorContainer();
 			System.Console.WriteLine("Scanning file " + path + " ...");
+			Scanner scanner = new Scanner(file, errors);
+		
+			//print lexical errors
+			foreach(ErrorEntry e in errors.getErrorsByType(ErrorType.Lexical_Error)) {
+				System.Console.WriteLine("Lexical error");
+				System.Console.WriteLine(e.ToString());
+			}
+
+			Parser parser = new Parser(scanner, errors);
 
 			AbstractSyntaxTree ast  = parser.Parse();
+
+			//print syntax errors
+			foreach(ErrorEntry e in errors.getErrorsByType(ErrorType.Syntax_Error)) {
+				System.Console.WriteLine("Syntax error");
+				System.Console.WriteLine(e.ToString());
+			}
 
 			System.Console.WriteLine(ast);
 			

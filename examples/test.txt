@@ -1,14 +1,16 @@
-var asdf : int := (5+3)*5;
+
+aaa := 5 * 5;
+
+var asdf : int := (aaa+3)*(aaa + "trololoo");
 
 for asdf in 2 .. 23 do 
 	for aaa in 2 + 5 .. asdf do
 		print aaa;
 	end for;
 	
-	print "LOL!!!";
+	print "\"LOL\"!!!";
 	print "asdf!!!";
 end for;
 
 
 a := 1000;
- 

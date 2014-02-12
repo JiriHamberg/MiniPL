@@ -28,8 +28,11 @@ namespace CompilersProject
 		private Stack<Token> inputStack = new Stack<Token>();
 		private Stack<Token> outputStack = new Stack<Token>();
 
-		public ExpressionBuilder ()
+		private ErrorContainer errors;
+
+		public ExpressionBuilder (ErrorContainer errors)
 		{
+			this.errors = errors;
 		}
 
 		public void offer(Token next)
@@ -47,11 +50,16 @@ namespace CompilersProject
 		//builds the expression subtree recursively
 		private Expression buildExpression ()
 		{
-
-			System.Console.WriteLine("builder building stuff!!!");
 			Expression ret = null;
 
+			if (outputStack.Count < 1) {
+				ExpressionLeaf e = new ExpressionLeaf();
+				e.token = Token.errorToken();
+				return e;
+			}
+
 			Token t = outputStack.Pop ();
+
 
 			if (t.isBinaryOperator()) {
 				ret = new BinaryOperator ();

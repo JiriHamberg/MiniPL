@@ -37,6 +37,7 @@ namespace CompilersProject
 			{"int", Category.Type_Integer}
 		};
 
+		private ErrorContainer errors;
 		//todo: maybe use linked list as the buffer instead of queue since C# queue sucks
 		private Queue<Token> tokenBuffer = new Queue<Token>();
 		private StreamReader charStream;
@@ -52,8 +53,9 @@ namespace CompilersProject
 		 * Public methods
 		 */
 
-		public Scanner (StreamReader charStream)
+		public Scanner (StreamReader charStream, ErrorContainer errContainer)
 		{
+			this.errors = errContainer;
 			this.charStream = charStream;
 			skipBlank ();
 			while (!charStream.EndOfStream) {
@@ -132,7 +134,7 @@ namespace CompilersProject
 					category = Category.Colon;
 				}
 			} else if (Char.IsLetter (current)) { //indentifier, keyword, function, etc.
-				readWhile ( x => Char.IsLetterOrDigit(x));
+				readWhile ( x => !simpleLexemes.ContainsKey(x) && x != '.' && !Char.IsWhiteSpace(x)); //Char.IsLetterOrDigit(x)
 			} 
 			else if (Char.IsNumber (current)) { //integer literal
 				category = Category.Literal_Integer;
@@ -140,8 +142,24 @@ namespace CompilersProject
 			} 
 			else if(current == '"') { //string literal
 				category = Category.Literal_String;
-				readWhile (x => x != '"');
-				lexeme += nextChar ();
+				lexeme = "";
+				while(!charStream.EndOfStream) {
+					readWhile (x => x != '\\' && x != '"');
+					int lookup = peekChar ();
+					if(lookup == '\\') {
+						lexeme += nextChar ();
+						if (!charStream.EndOfStream) {
+							lexeme += nextChar();
+						} else {
+							errors.addError (lexeme_begin_line, lexeme_begin_column, ErrorType.Lexical_Error, "Unclosed string literal");
+						}
+					} else if (lookup == '"') { 
+						nextChar ();
+						break;
+					} else {
+						errors.addError (lexeme_begin_line, lexeme_begin_column, ErrorType.Lexical_Error, "Unclosed string literal");
+					}
+				}
 			}
 			else if ( current == '.') {
 				if(peekChar() == '.') {
@@ -160,7 +178,8 @@ namespace CompilersProject
 			} else if (isValidIdentifier (lexeme)){ 
 				category = Category.Identifier;
 			} else{
-				category = Category.NONE; //marks invalid identifier
+				category = Category.NONE; //marks invalid token
+				errors.addError(line, column, ErrorType.Lexical_Error, "Invalid identifier: " + lexeme);
 			}
 		}
 

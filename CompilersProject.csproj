@@ -42,6 +42,7 @@
     <Compile Include="parser\Parser.cs" />
     <Compile Include="models\Category.cs" />
     <Compile Include="parser\ExpressionBuilder.cs" />
+    <Compile Include="errors\ErrorContainer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -49,6 +50,7 @@
     <Folder Include="models\" />
     <Folder Include="examples\" />
     <Folder Include="parser\" />
+    <Folder Include="errors\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="examples\test.txt">

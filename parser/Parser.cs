@@ -6,6 +6,7 @@ namespace CompilersProject
 	{
 
 		private Scanner scanner;
+		private ErrorContainer errors;
 
 		//current token
 		private Token token;
@@ -15,9 +16,10 @@ namespace CompilersProject
 		//ast that we are building
 		//private AbstractSyntaxTree ast = new AbstractSyntaxTree();
 
-		public Parser (Scanner scanner)
+		public Parser (Scanner scanner, ErrorContainer errors)
 		{
 			this.scanner = scanner;
+			this.errors = errors;
 		}
 
 		public AbstractSyntaxTree Parse ()
@@ -66,15 +68,12 @@ namespace CompilersProject
 
 		private void addError (Token found, params Category[] expected)
 		{
-			//todo: implement... maybe a container class for errors?
-			string error = "Error: line " + found.line + " column " + found.column;
-			error = error + " expecting " + expected [0];
+			string errorMsg = "Expecting " + expected [0];
 			for (int i=1; i <expected.Length; i++) {
-				error = error + " or " + expected[i];
+				errorMsg = errorMsg + " or " + expected[i];
 			}
-			error = error +	", but found " + found.category;
-			System.Console.WriteLine (error);
-			System.Console.WriteLine (token.lexeme); 
+			errorMsg = errorMsg +	", but found " + found.category;
+			errors.addError(token, ErrorType.Syntax_Error, errorMsg); 
 		}
 
 		//naive recovery strategy: continue parsing from the next token
@@ -138,8 +137,12 @@ namespace CompilersProject
 			} else if (accept (Category.Identifier)) {
 				ret = new Assignment();
 				((Assignment)ret).identifier = accepted;
-				expect (Category.Operator_Assignment);
-				((Assignment)ret).expression = expression ();
+				if (expect (Category.Operator_Assignment)) {
+					((Assignment)ret).expression = expression ();
+				} else {
+					System.Console.WriteLine("INVALID ASSIGNMENT!!!");
+					errors.addError(token, ErrorType.Syntax_Error, "Invalid assignment; expression expected");
+				}
 				//for loop
 			} else if (accept (Category.Keyword_For)) {
 				ret = new ForLoop();
@@ -169,14 +172,14 @@ namespace CompilersProject
 				((Assert)ret).assertion = expression ();
 				expect (Category.Rigth_Bracket);
 			} else {
-				//error? expecting a statement
+				errors.addError(token, ErrorType.Syntax_Error, "Expecting a statement");
 			}
 			return ret;
 		}
 
 		private Expression expression ()
 		{
-			ExpressionBuilder builder = new ExpressionBuilder();
+			ExpressionBuilder builder = new ExpressionBuilder(errors);
 			buildExpression(builder);
 			return builder.build();
 		}
@@ -216,11 +219,11 @@ namespace CompilersProject
 				expect (Category.Rigth_Bracket);
 				builder.offer (accepted);
 			} else {
-				//error? expecting expression
-				addError(token, Category.Literal_Integer, 
+				/*addError(token, Category.Literal_Integer, 
 						 Category.Literal_String,
 						 Category.Identifier,
-				         Category.Left_Bracket);
+				         Category.Left_Bracket);*/
+				errors.addError(token, ErrorType.Syntax_Error, "Expecting an operand");
 			}
 		}
 
