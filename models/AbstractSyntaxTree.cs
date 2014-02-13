@@ -68,7 +68,11 @@ namespace CompilersProject
 
 		public override string ToString ()
 		{
-			return "declare: " +  identifier + " = " + expression;
+			string s = "declare: " + identifier;
+			if (expression != null) {
+				s = s + " = " + expression;
+			}
+			return s;
 		}
 	}
 
@@ -119,6 +123,7 @@ namespace CompilersProject
 
 	public class Assert : Statement
 	{
+		public Token location;
 		public Expression assertion;
 	}
 

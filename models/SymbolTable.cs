@@ -7,9 +7,22 @@ namespace CompilersProject
 	{
 
 		private Dictionary<string, SymbolTableEntry> symbols = new Dictionary<string, SymbolTableEntry>();
+		private Stack<string> symbolLock = new Stack<string>();
+
+
 
 		public SymbolTable ()
 		{		
+		}
+
+		public void Lock (Token identifier)
+		{
+			symbolLock.Push(identifier.lexeme);
+		}
+
+		public void Unlock ()
+		{
+			symbolLock.Pop();
 		}
 
 		public void Declare(Token identifier, Token type, object value) 
@@ -32,6 +45,11 @@ namespace CompilersProject
 		public bool isDeclared (Token identifier)
 		{
 			return symbols.ContainsKey(identifier.lexeme);
+		}
+
+		public bool isLocked (Token identifier)
+		{
+			return symbolLock.Contains(identifier.lexeme);
 		}
 
 		public object GetValue (Token identifier)

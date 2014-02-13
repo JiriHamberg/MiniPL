@@ -1,17 +1,18 @@
 
-var aaa : int := 5 * 5;
+var aaa : int;
 
 var bbb : int := 3 + ( aaa / 2 ) ;
 
 var c : bool := aaa < (bbb * 2);
 
-var asdf : int := (aaa+3)*(aaa + 7);
+var asdf : int := 5;
 
-for asdf in 2 .. 23 do 
-	for aaa in 2 + 5 .. asdf do
+for asdf in 1 .. 5 do 
+	for aaa in 1 .. 5 do
+		print "aaa is now ";
 		print aaa;
+		print "\n";
 	end for;
-	
-	print "\"LOL\"!!!";
+	print "\"LOL\"!!!\n";
 	print asdf;
 end for;

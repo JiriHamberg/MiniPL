@@ -8,8 +8,6 @@ namespace CompilersProject
 		private AbstractSyntaxTree ast;
 		private ErrorContainer errors;
 		private SymbolTable symbolTable = new SymbolTable();
-		private Stack<string> symbolLock = new Stack<string>();
-
 
 		public SemanticAnalyser (AbstractSyntaxTree ast, ErrorContainer errors)
 		{
@@ -38,7 +36,9 @@ namespace CompilersProject
 					errors.addError (declaration.identifier, ErrorType.Semantic_Error, "Identifier " + declaration.identifier.lexeme + " already declared");
 				} else {
 					symbolTable.Declare (declaration.identifier, declaration.type );
-					doTypeChecking (declaration.expression, declaration.type.category);
+					if(declaration.expression != null) {
+						doTypeChecking (declaration.expression, declaration.type.category);
+					}
 				}
 			} else if (stmt is Assignment) {
 				var assignment = ((Assignment)stmt);
@@ -50,11 +50,11 @@ namespace CompilersProject
 					//note: as it stands now, invalid loop variable declaration halts type checking
 					//      for the entire loop body
 					//      might be good idea to refactor this later and remove such behaviour
-					symbolLock.Push(loop.variable.lexeme);
+					symbolTable.Lock(loop.variable);
 					doTypeChecking (loop.from, Category.Type_Integer);
 					doTypeChecking (loop.to, Category.Type_Integer);
 					doTypeChecking (loop.statements);
-					symbolLock.Pop();
+					symbolTable.Unlock();
 				});
 			} else if (stmt is Print) {
 				doConsistencyChecking(((Print)stmt).expression);			
@@ -69,7 +69,7 @@ namespace CompilersProject
 
 		void validateAssignmentAndDoAction (Token identifier, Action action) {
 			if (symbolTable.isDeclared (identifier)) {
-				if (symbolLock.Contains (identifier.lexeme)) {
+				if (symbolTable.isLocked (identifier)) {
 					errors.addError (identifier, ErrorType.Semantic_Error, "Variable is being used by a for loop and cannot be assigned to");
 				} else {
 					//do action if assignment to identifier is valid
@@ -83,12 +83,16 @@ namespace CompilersProject
 
 		private void doTypeChecking (Expression expression, Category type)
 		{
-			if (TypeSystem.GetCategoryFromType (decideType (expression)) != type) {
+			/*if (TypeSystem.GetCategoryFromType (decideType (expression)) != type) {
+				errors.addError(expression.head(), ErrorType.Semantic_Error, "Expression does not match the required type");
+			}*/
+
+			if (TypeBindings.GetCategoryFromType (TypeBindings.DecideType(expression, symbolTable, errors)) != type) {
 				errors.addError(expression.head(), ErrorType.Semantic_Error, "Expression does not match the required type");
 			}
 		}
 
-		private TypeModel decideType (Expression expression)
+		/*private TypeModel decideType (Expression expression)
 		{
 			if (expression is BinaryOperator) {
 				var binOp = (BinaryOperator)expression;
@@ -138,16 +142,13 @@ namespace CompilersProject
 			}
 
 			return null;
-		}
-
-		/*private bool isValidExpression(Expression expression, Category type) 
-		{
-
 		}*/
+
 
 		//checks that given expression is consistent for exmaple bool + integer is inconsistent
 		private void doConsistencyChecking (Expression expression) {
-			decideType (expression);
+			//decideType (expression);
+			TypeBindings.DecideType(expression, symbolTable, errors);
 		}
 
 	}

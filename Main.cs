@@ -30,7 +30,7 @@ namespace CompilersProject
 				System.Console.WriteLine(e.ToString());
 			}
 
-			System.Console.WriteLine(ast);
+			//System.Console.WriteLine(ast);
 
 			SemanticAnalyser semanticAnalyser = new SemanticAnalyser(ast, errors);
 
@@ -41,6 +41,9 @@ namespace CompilersProject
 				System.Console.WriteLine(e.ToString());
 			}
 
+			Interpreter interpreter = new Interpreter();
+
+			interpreter.Interprete(ast);
 
 			/*while (scanner.HasNext ()) {
 				Token next = scanner.Next ();

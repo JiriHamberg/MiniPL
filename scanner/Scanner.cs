@@ -189,9 +189,22 @@ namespace CompilersProject
 				readWhile (x => x != '\\' && x != '"');
 				int lookup = peekChar ();
 				if(lookup == '\\') {
-					lexeme += nextChar ();
+					nextChar ();
 					if (!charStream.EndOfStream) {
-						lexeme += nextChar();
+						switch(peekChar ()) {
+							case 'n':
+								nextChar ();
+								lexeme += '\n';
+								break;
+							case 't':
+								nextChar ();
+								lexeme += '\t';
+								break;
+							default:
+								lexeme += nextChar ();
+								break;
+						}
+
 					} else {
 						errors.addError (lexeme_begin_line, lexeme_begin_column, ErrorType.Lexical_Error, "Unclosed string literal");
 					}

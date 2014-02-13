@@ -168,6 +168,7 @@ namespace CompilersProject
 				//assert
 			} else if (accept (Category.Function_Assert)) {
 				ret = new Assert();
+				((Assert)ret).location = accepted;
 				expect (Category.Left_Bracket);
 				((Assert)ret).assertion = expression ();
 				expect (Category.Rigth_Bracket);

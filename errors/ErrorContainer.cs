@@ -58,17 +58,24 @@ namespace CompilersProject
 			addError (err);
 		}
 
+		public void addError (ErrorType type, string message)
+		{
+			var err = new ErrorEntry(type, message);
+			addError (err);
+		}
+
 	}
 
 	public enum ErrorType {
 		Lexical_Error,
 		Syntax_Error,
-		Semantic_Error
+		Semantic_Error,
+		Runtime_Error
 	}
 
 	public class ErrorEntry
 	{
-		public Token token;
+		public Token? token = null;
 		public string message;
 		public ErrorType type;
 
@@ -81,18 +88,31 @@ namespace CompilersProject
 
 		public ErrorEntry (int line, int column, ErrorType type, string message) : this(Token.errorToken(), type, message)
 		{
-			this.token.line = line;
-			this.token.column = column;
+			Token t = Token.errorToken();
+			t.line = line;
+			t.column = column;
+			this.token = t;
+		}
+
+		public ErrorEntry (ErrorType type, string message)
+		{
+			this.type = type;
+			this.message = message;
 		}
 
 		public override string ToString ()
 		{
-			string s = "Error near ";
-			if (token.category != Category.NONE) {
-				s = s + "\"" + token.lexeme +"\" on ";
+			string s = "";
+			if (token.HasValue) {
+				s = s + "Error near ";
+				if (token.Value.category != Category.NONE) {
+					s = s + "\"" + token.Value.lexeme + "\" on ";
+				}
+				s = s + string.Format ("line {0} column {1}: {2}",
+				                     token.Value.line, token.Value.column, message);
+			} else {
+				s = s + message;
 			}
-			s = s + string.Format("line {0} column {1}: {2}",
-			                     token.line, token.column, message);
 			return s;
 		}
 	}
