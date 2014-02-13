@@ -1,7 +1,11 @@
 
-aaa := 5 * 5;
+var aaa : int := 5 * 5;
 
-var asdf : int := (aaa+3)*(aaa + "trololoo");
+var bbb : int := 3 + ( aaa / 2 ) ;
+
+var c : bool := aaa < (bbb * 2);
+
+var asdf : int := (aaa+3)*(aaa + 7);
 
 for asdf in 2 .. 23 do 
 	for aaa in 2 + 5 .. asdf do
@@ -9,8 +13,5 @@ for asdf in 2 .. 23 do
 	end for;
 	
 	print "\"LOL\"!!!";
-	print "asdf!!!";
+	print asdf;
 end for;
-
-
-a := 1000;

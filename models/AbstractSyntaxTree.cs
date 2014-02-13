@@ -125,6 +125,7 @@ namespace CompilersProject
 	public abstract class Expression : ASTNode 
 	{
 		//public Expression head;
+		public abstract Token head();
 	}
 
 	public class BinaryOperator : Expression 
@@ -132,7 +133,12 @@ namespace CompilersProject
 		public Token oper;
 		public Expression leftOperand;
 		public Expression rigtOperand;
-	
+
+		public override Token head ()
+		{
+			return oper;
+		}
+
 		public override string ToString ()
 		{
 			return oper.ToString() + " " + leftOperand.ToString() + " " + rigtOperand.ToString();
@@ -144,6 +150,11 @@ namespace CompilersProject
 		public Token oper;
 		public Expression operand;
 
+		public override Token head ()
+		{
+			return oper;
+		}
+
 		public override string ToString ()
 		{
 			return oper.ToString() + operand.ToString();
@@ -154,6 +165,11 @@ namespace CompilersProject
 	public class ExpressionLeaf : Expression 
 	{
 		public Token token;
+
+		public override Token head ()
+		{
+			return token;
+		}
 
 		public override string ToString ()
 		{

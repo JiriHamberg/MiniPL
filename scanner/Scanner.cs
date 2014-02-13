@@ -37,13 +37,16 @@ namespace CompilersProject
 			{"int", Category.Type_Integer}
 		};
 
+		//list of transitions in order of presedence
+		private List<KeyValuePair<Func<char, bool>, Action>> transitionTable;
 		private ErrorContainer errors;
 		//todo: maybe use linked list as the buffer instead of queue since C# queue sucks
 		private Queue<Token> tokenBuffer = new Queue<Token>();
 		private StreamReader charStream;
+
+		private char current;
 		private int line = 1;
 		private int column = 1;
- 
 		private String lexeme;
 		private Category category;
 		private int lexeme_begin_line = -1;
@@ -55,6 +58,57 @@ namespace CompilersProject
 
 		public Scanner (StreamReader charStream, ErrorContainer errContainer)
 		{
+			this.transitionTable = new List<KeyValuePair<Func<char, bool>, Action>> ()
+			{
+				//simple one char lexemes
+				transition (
+					c => simpleLexemes.ContainsKey(c),
+					() => simpleLexemes.TryGetValue(current, out category) ),
+
+				//identifier or reserved keyword
+				transition (
+					c => Char.IsLetter(c),
+					() => readWhile ( x => !simpleLexemes.ContainsKey(x) && x != '.' && !Char.IsWhiteSpace(x)) ),
+
+				//integer literal
+				transition (
+					c => Char.IsNumber(c),
+					() => 
+						{
+							category = Category.Literal_Integer;
+							readWhile (x => Char.IsDigit(x));
+						}),
+
+				//string literal
+				transition (
+					c => c == '"', 
+					() => scanString () ),
+
+				//colon or assignment
+				transition (
+					c => c == ':', 
+					() => 
+						{
+							if(peekChar () == '=') {
+									category = Category.Operator_Assignment;
+									lexeme += nextChar ();
+							} else {
+								category = Category.Colon;
+							}
+						}),
+
+				//for loop range
+				transition (
+					c => c == '.', 
+					() =>
+						{
+							if(peekChar() == '.') {
+								category = Category.Loop_Range;
+								lexeme += nextChar();
+							}
+						})
+			};
+
 			this.errors = errContainer;
 			this.charStream = charStream;
 			skipBlank ();
@@ -114,60 +168,42 @@ namespace CompilersProject
 		private void readLexeme ()
 		{
 			if (charStream.EndOfStream) {
-				throw new EndOfStreamException("Character stream ended unexpectedly");
+				throw new EndOfStreamException ("Character stream ended unexpectedly");
 			}
 
-			char current = nextChar ();
+			current = nextChar ();
 			lexeme  += current;
 			lexeme_begin_column = column -1;
 			lexeme_begin_line = line;
-		
-			if (simpleLexemes.ContainsKey (current)) {
-				simpleLexemes.TryGetValue(current, out category);
-			} 
-			else if (current == ':') {
-				if(peekChar () == '=') {
-					category = Category.Operator_Assignment;
+			//find the action corresponding to the current character and invoke it
+			var match = transitionTable.Find( kvp => kvp.Key(current));
+			match.Value();
+		}
+
+
+		private void scanString ()
+		{
+			category = Category.Literal_String;
+			lexeme = "";
+			while(!charStream.EndOfStream) {
+				readWhile (x => x != '\\' && x != '"');
+				int lookup = peekChar ();
+				if(lookup == '\\') {
 					lexeme += nextChar ();
-				}
-				else {
-					category = Category.Colon;
-				}
-			} else if (Char.IsLetter (current)) { //indentifier, keyword, function, etc.
-				readWhile ( x => !simpleLexemes.ContainsKey(x) && x != '.' && !Char.IsWhiteSpace(x)); //Char.IsLetterOrDigit(x)
-			} 
-			else if (Char.IsNumber (current)) { //integer literal
-				category = Category.Literal_Integer;
-				readWhile (x => Char.IsDigit(x));
-			} 
-			else if(current == '"') { //string literal
-				category = Category.Literal_String;
-				lexeme = "";
-				while(!charStream.EndOfStream) {
-					readWhile (x => x != '\\' && x != '"');
-					int lookup = peekChar ();
-					if(lookup == '\\') {
-						lexeme += nextChar ();
-						if (!charStream.EndOfStream) {
-							lexeme += nextChar();
-						} else {
-							errors.addError (lexeme_begin_line, lexeme_begin_column, ErrorType.Lexical_Error, "Unclosed string literal");
-						}
-					} else if (lookup == '"') { 
-						nextChar ();
-						break;
+					if (!charStream.EndOfStream) {
+						lexeme += nextChar();
 					} else {
 						errors.addError (lexeme_begin_line, lexeme_begin_column, ErrorType.Lexical_Error, "Unclosed string literal");
 					}
-				}
-			}
-			else if ( current == '.') {
-				if(peekChar() == '.') {
-					category = Category.Loop_Range;
-					lexeme += nextChar();
+				} else if (lookup == '"') { 
+					nextChar ();
+					break;
+				} else {
+					errors.addError (lexeme_begin_line, lexeme_begin_column, ErrorType.Lexical_Error, "Unclosed string literal");
 				}
 			}
 		}
+
 
 		private void decideCategory () 
 		{
@@ -245,6 +281,12 @@ namespace CompilersProject
 			} else {
 				column++;
 			}
+		}
+
+		//helper to hide nasty type-typing
+		private KeyValuePair<Func<char, bool>, Action> transition (Func<char, bool> condition, Action effect)
+		{
+			return new KeyValuePair<Func<char, bool>, Action>(condition, effect);
 		}
 
 	}

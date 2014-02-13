@@ -31,7 +31,16 @@ namespace CompilersProject
 			}
 
 			System.Console.WriteLine(ast);
-			
+
+			SemanticAnalyser semanticAnalyser = new SemanticAnalyser(ast, errors);
+
+			semanticAnalyser.doTypeChecking();
+
+			foreach(ErrorEntry e in errors.getErrorsByType(ErrorType.Semantic_Error)) {
+				System.Console.WriteLine("Semantic error");
+				System.Console.WriteLine(e.ToString());
+			}
+
 
 			/*while (scanner.HasNext ()) {
 				Token next = scanner.Next ();

@@ -43,6 +43,9 @@
     <Compile Include="models\Category.cs" />
     <Compile Include="parser\ExpressionBuilder.cs" />
     <Compile Include="errors\ErrorContainer.cs" />
+    <Compile Include="analyser\SemanticAnalyser.cs" />
+    <Compile Include="models\SymbolTable.cs" />
+    <Compile Include="models\TypeSystem.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -51,6 +54,7 @@
     <Folder Include="examples\" />
     <Folder Include="parser\" />
     <Folder Include="errors\" />
+    <Folder Include="analyser\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="examples\test.txt">
