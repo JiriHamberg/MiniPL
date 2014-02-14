@@ -48,6 +48,7 @@
     <Compile Include="interpreter\Interpreter.cs" />
     <Compile Include="models\TypeBindings.cs" />
     <Compile Include="interpreter\TypeModels.cs" />
+    <Compile Include="models\Operators.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

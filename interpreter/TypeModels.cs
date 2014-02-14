@@ -11,62 +11,62 @@ namespace CompilersProject
 		static TypeModels ()
 		{
 			TypeModel intModel = new TypeModel(0);
-			intModel.AddBinaryOperators(new Dictionary<Category, Func<object, object, object>>() {
-				{Category.Operator_Addition, (left, right) =>
+			intModel.AddBinaryOperators(new Dictionary<string, Func<object, object, object>>() {
+				{Operators.ADDITION, (left, right) =>
 					(int)left + (int)right
 				},
-				{Category.Operator_Substraction, (left, right) =>
+				{Operators.SUBSTRACTION, (left, right) =>
 					(int)left - (int)right
 				},
-				{Category.Operator_Multiplication, (left, right) =>
+				{Operators.MULTIPLICATION, (left, right) =>
 					(int)left * (int)right
 				},
-				{Category.Operator_Division, (left, right) =>
+				{Operators.DIVISION, (left, right) =>
 					(int)left / (int)right
 				},
-				{Category.Operator_Less, (left, right) =>
+				{Operators.LESS, (left, right) =>
 					(int)left < (int)right
 				},
-				{Category.Operator_Equality, (left, right) =>
+				{Operators.EQUALITY, (left, right) =>
 					(int)left == (int)right
 				}
 
 			});
 
 			TypeModel boolModel = new TypeModel(false);
-			boolModel.AddBinaryOperators (new Dictionary<Category, Func<object, object, object>>() {
-				{Category.Operator_Equality, (left, right) =>
+			boolModel.AddBinaryOperators (new Dictionary<string, Func<object, object, object>>() {
+				{Operators.EQUALITY, (left, right) =>
 					(bool)left == (bool)right
 				},
-				{Category.Operator_And, (left, right) =>
+				{Operators.AND, (left, right) =>
 					(bool)left && (bool)right
 				}
 			});
 
-			boolModel.AddUnaryOperators(new Dictionary<Category, Func<object, object>>{
-				{Category.Operator_Not, (operand) =>
+			boolModel.AddUnaryOperators(new Dictionary<string, Func<object, object>>{
+				{Operators.NOT, (operand) =>
 					!(bool)operand
 				}
 			});
 
 			TypeModel stringModel = new TypeModel("");
-			stringModel.AddBinaryOperators(new Dictionary<Category, Func<object, object, object>>() {
-				{Category.Operator_Equality, (left, right) =>
+			stringModel.AddBinaryOperators(new Dictionary<string, Func<object, object, object>>() {
+				{Operators.EQUALITY, (left, right) =>
 					(string)left == (string)right
 				},
-				{Category.Operator_Addition, (left, right) =>
+				{Operators.ADDITION, (left, right) =>
 					(string)left + (string)right
 				}
 				
 			});
 
-			models.Add(TypeBindings.integer, intModel);
-			models.Add(TypeBindings.boolean, boolModel);
-			models.Add (TypeBindings.str, stringModel);
+			models.Add(TypeBindings.GetTypeByName(TypeBindings.PRIMITIVE_INTEGER_NAME), intModel);
+			models.Add(TypeBindings.GetTypeByName(TypeBindings.PRIMITIVE_BOOLEAN_NAME), boolModel);
+			models.Add (TypeBindings.GetTypeByName(TypeBindings.PRIMITIVE_STRING_NAME), stringModel);
 
 		}
 
-		public static object EvaluateBinaryOperator (TypeBinding type, Category oper, object leftOperand, object rightOperand)
+		public static object EvaluateBinaryOperator (TypeBinding type, string oper, object leftOperand, object rightOperand)
 		{
 			TypeModel model;
 			Func<object, object, object> binOp;
@@ -80,7 +80,7 @@ namespace CompilersProject
 			return binOp(leftOperand, rightOperand);
 		}
 
-		public static object EvaluateUnaryOperator (TypeBinding type, Category oper, object operand)
+		public static object EvaluateUnaryOperator (TypeBinding type, string oper, object operand)
 		{
 			TypeModel model;
 			Func<object,object> unOp;
@@ -103,22 +103,22 @@ namespace CompilersProject
 	}
 
 
-	public class TypeModel{
+	public class TypeModel {
 		public object defaultValue;
-		public Dictionary<Category, Func<object, object, object>> binaryOperatorImplementations;
-		public Dictionary<Category, Func<object, object>> unaryOperatorImplementations;
+		public Dictionary<string, Func<object, object, object>> binaryOperatorImplementations;
+		public Dictionary<string, Func<object, object>> unaryOperatorImplementations;
 
 		public TypeModel (object defaultValue)
 		{
 			this.defaultValue = defaultValue;
 		}
 
-		public void AddBinaryOperators (Dictionary<Category, Func<object, object, object>> binOps)
+		public void AddBinaryOperators (Dictionary<string, Func<object, object, object>> binOps)
 		{
 			this.binaryOperatorImplementations = binOps;
 		}
 
-		public void AddUnaryOperators (Dictionary<Category, Func<object, object>> unOps)
+		public void AddUnaryOperators (Dictionary<string, Func<object, object>> unOps)
 		{
 			this.unaryOperatorImplementations = unOps;
 		}

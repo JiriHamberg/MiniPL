@@ -6,22 +6,22 @@ namespace CompilersProject
 
 	/*
 	 * Implements the classic shunting yard algorithm
-	 * (with polish notation output [not reverse polish notation!])
-	 * and builds an expression subtree of the abstract syntax tree
+	 * (with Polish notation output [not reverse Polish notation!])
+	 * and builds an expression subtree for the abstract syntax tree
 	 */
 
 	public class ExpressionBuilder
 	{
 
-		private static Dictionary<Category, int> precedence = new Dictionary<Category, int>(){
-			{Category.Operator_Not, 1},
-			{Category.Operator_Equality, 2},
-			{Category.Operator_Less, 2},
-			{Category.Operator_And, 3},
-			{Category.Operator_Addition, 4},
-			{Category.Operator_Substraction, 4},
-			{Category.Operator_Multiplication, 5},
-			{Category.Operator_Division, 5}
+		private static Dictionary<string, int> precedence = new Dictionary<string, int>() {
+			{Operators.NOT, 1},
+			{Operators.EQUALITY, 2},
+			{Operators.LESS, 2},
+			{Operators.AND, 3},
+			{Operators.ADDITION, 4},
+			{Operators.SUBSTRACTION, 4},
+			{Operators.MULTIPLICATION, 5},
+			{Operators.DIVISION, 5}
 		};
 
 		private Stack<Token> operStack = new Stack<Token>();
@@ -35,13 +35,13 @@ namespace CompilersProject
 			this.errors = errors;
 		}
 
-		public void offer(Token next)
+		//give tokens to the builder
+		public void Offer(Token next)
 		{
 			inputStack.Push (next);
 		}
 
-
-		public Expression build ()
+		public Expression Build ()
 		{
 			shuntingYard();
 			return buildExpression ();
@@ -61,12 +61,12 @@ namespace CompilersProject
 
 			Token t = outputStack.Pop ();
 
-			if (t.isBinaryOperator()) {
+			if (t.category == Category.Binary_Operator) {
 				ret = new BinaryOperator ();
 				((BinaryOperator)ret).oper = t;
 				((BinaryOperator)ret).leftOperand = buildExpression ();
 				((BinaryOperator)ret).rigtOperand = buildExpression ();
-			} else if (t.isUnaryOperator()) {
+			} else if (t.category == Category.Unary_Operator) {
 				ret = new UnaryOperator ();
 				((UnaryOperator)ret).oper = t;
 				((UnaryOperator)ret).operand = buildExpression ();
@@ -116,8 +116,8 @@ namespace CompilersProject
 						Token top = operStack.Peek ();
 						int precTop = -1;
 						int precCur = -1;
-						precedence.TryGetValue (top.category, out precTop);
-						precedence.TryGetValue (t.category, out precCur);
+						precedence.TryGetValue (top.lexeme, out precTop);
+						precedence.TryGetValue (t.lexeme, out precCur);
 						if (precTop >= precCur) {
 							outputStack.Push (operStack.Pop ());
 						} else {

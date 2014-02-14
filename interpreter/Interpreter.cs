@@ -34,7 +34,7 @@ namespace CompilersProject
 				var declaration = (Declaration)stmt;
 				if(declaration.expression == null) {
 					//use default value
-					TypeBinding binding = TypeBindings.GetTypeFromCategory(declaration.type.category);
+					TypeBinding binding = TypeBindings.GetTypeByName(declaration.type.lexeme);
 					object defaultValue = TypeModels.GetDefaultValue(binding);
 
 					//Console.WriteLine("Default value: " + defaultValue);
@@ -79,13 +79,13 @@ namespace CompilersProject
 				var binOp = (BinaryOperator)expression;
 				TypeBinding binding = TypeBindings.DecideType(binOp.leftOperand, symbolTable, errors);
 
-				return TypeModels.EvaluateBinaryOperator(binding, binOp.oper.category,
+				return TypeModels.EvaluateBinaryOperator(binding, binOp.oper.lexeme,
 				                                  Evaluate (binOp.leftOperand), Evaluate(binOp.rigtOperand));
 			} else if (expression is UnaryOperator) {
 				var unOp = (UnaryOperator)expression;
 				TypeBinding binding = TypeBindings.DecideType(unOp.operand, symbolTable, errors);
 
-				return TypeModels.EvaluateUnaryOperator(binding, unOp.oper.category,
+				return TypeModels.EvaluateUnaryOperator(binding, unOp.oper.lexeme,
 				                                        Evaluate (unOp.operand));
 			} else if (expression is ExpressionLeaf) {
 				//Console.WriteLine("I AM LEAF");

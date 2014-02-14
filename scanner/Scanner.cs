@@ -8,18 +8,19 @@ namespace CompilersProject
 	{
 		private const int END_OF_STREAM = -1;
 
-		private static Dictionary<char, Category> simpleLexemes = new Dictionary<char, Category>()
+		private static Dictionary<string, Category> simpleLexemes = new Dictionary<string, Category>()
 		{
-			{'(', Category.Left_Bracket},
-			{')', Category.Rigth_Bracket},
-			{'<', Category.Operator_Less},
-			{'=', Category.Operator_Equality},
-			{'&', Category.Operator_And},
-			{'!', Category.Operator_Not},
-			{'+', Category.Operator_Addition},
-			{'*', Category.Operator_Multiplication},
-			{'/', Category.Operator_Division},
-			{';', Category.Semicolon}
+			{"(", Category.Left_Bracket},
+			{")", Category.Rigth_Bracket},
+			{Operators.LESS, Category.Binary_Operator},
+			{"=", Category.Binary_Operator},
+			{Operators.AND, Category.Binary_Operator},
+			{Operators.ADDITION, Category.Binary_Operator},
+			{Operators.SUBSTRACTION, Category.Binary_Operator},
+			{Operators.MULTIPLICATION, Category.Binary_Operator},
+			{Operators.DIVISION, Category.Binary_Operator},
+			{Operators.NOT, Category.Unary_Operator},
+			{";", Category.Semicolon}
 		};
 
 		private static Dictionary<String, Category> reservedWords = new Dictionary<string, Category>()
@@ -32,9 +33,9 @@ namespace CompilersProject
 			{"assert", Category.Function_Assert},
 			{"print", Category.Function_Print},
 			{"read", Category.Function_Read},
-			{"bool", Category.Type_Boolean},
-			{"string", Category.Type_String},
-			{"int", Category.Type_Integer}
+			{"bool", Category.Type},
+			{"string", Category.Type},
+			{"int", Category.Type}
 		};
 
 		//list of transitions in order of presedence
@@ -62,13 +63,13 @@ namespace CompilersProject
 			{
 				//simple one char lexemes
 				transition (
-					c => simpleLexemes.ContainsKey(c),
-					() => simpleLexemes.TryGetValue(current, out category) ),
+					c => simpleLexemes.ContainsKey(c.ToString()),
+					() => simpleLexemes.TryGetValue(current.ToString(), out category) ),
 
 				//identifier or reserved keyword
 				transition (
 					c => Char.IsLetter(c),
-					() => readWhile ( x => !simpleLexemes.ContainsKey(x) && x != '.' && !Char.IsWhiteSpace(x)) ),
+					() => readWhile ( x => !simpleLexemes.ContainsKey(x.ToString()) && x != '.' && !Char.IsWhiteSpace(x)) ),
 
 				//integer literal
 				transition (
@@ -90,7 +91,7 @@ namespace CompilersProject
 					() => 
 						{
 							if(peekChar () == '=') {
-									category = Category.Operator_Assignment;
+									category = Category.Assignment;
 									lexeme += nextChar ();
 							} else {
 								category = Category.Colon;

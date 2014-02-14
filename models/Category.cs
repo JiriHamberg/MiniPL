@@ -5,29 +5,18 @@ namespace CompilersProject
 	public enum Category
 	{
 		Identifier,
-
 		//literals
 		Literal_Integer,
 		Literal_String,
 		Literal_Boolean,
 
-		//arithmetic operations
-		Operator_Assignment,
-		Operator_Addition,
-		Operator_Substraction,
-		Operator_Multiplication,
-		Operator_Division,
+		//operators
+		Binary_Operator,
+		Unary_Operator,
 
-		//boolean operators
-		Operator_And,
-		Operator_Not,
-		Operator_Equality,
-		Operator_Less,
+		Assignment,
 
-		//(primitive) types
-		Type_Integer,
-		Type_String,
-		Type_Boolean,
+		Type,
 
 		//keywords
 		Keyword_For,

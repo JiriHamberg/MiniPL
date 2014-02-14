@@ -11,37 +11,53 @@ namespace CompilersProject
 	public static class TypeBindings
 	{
 
-		public static Dictionary<string, TypeBinding> types = new Dictionary<string, TypeBinding>();
+		private static Dictionary<string, TypeBinding> types = new Dictionary<string, TypeBinding>();
 
-		public static readonly TypeBinding boolean = new TypeBinding("bool");
-		public static readonly TypeBinding str = new TypeBinding("string");
-		public static readonly TypeBinding integer = new TypeBinding("int");
+		//public static readonly TypeBinding boolean = new TypeBinding("bool");
+		//public static readonly TypeBinding str = new TypeBinding("string");
+		//public static readonly TypeBinding integer = new TypeBinding("int");
+		public const string PRIMITIVE_INTEGER_NAME = "int";
+		public const string PRIMITIVE_STRING_NAME = "string";
+		public const string PRIMITIVE_BOOLEAN_NAME = "bool";
 
 
 		static TypeBindings ()
 		{
-			boolean.AddOperators(new Dictionary<Category, TypeBinding> () {
-				{Category.Operator_Equality, boolean},
-				{Category.Operator_Not, boolean},
-				{Category.Operator_And, boolean}
+			TypeBinding boolean = new TypeBinding(PRIMITIVE_BOOLEAN_NAME);
+			TypeBinding str = new TypeBinding(PRIMITIVE_STRING_NAME);
+			TypeBinding integer = new TypeBinding(PRIMITIVE_INTEGER_NAME);
+
+			boolean.AddOperators(new Dictionary<string, TypeBinding> () {
+				{Operators.EQUALITY, boolean},
+				{Operators.NOT, boolean},
+				{Operators.AND, boolean}
 			});
 
-			str.AddOperators(new Dictionary<Category, TypeBinding> () {
-				{Category.Operator_Addition, str},
-				{Category.Operator_Equality, boolean}
+			str.AddOperators(new Dictionary<string, TypeBinding> () {
+				{Operators.ADDITION, str},
+				{Operators.EQUALITY, boolean}
 			});
 
-			integer.AddOperators(new Dictionary<Category, TypeBinding> () {
-				{Category.Operator_Addition, integer},
-				{Category.Operator_Substraction, integer},
-				{Category.Operator_Multiplication, integer},
-				{Category.Operator_Division, integer},
-				{Category.Operator_Less, boolean},
-				{Category.Operator_Equality, boolean}
+			integer.AddOperators(new Dictionary<string, TypeBinding> () {
+				{Operators.ADDITION, integer},
+				{Operators.SUBSTRACTION, integer},
+				{Operators.MULTIPLICATION, integer},
+				{Operators.DIVISION, integer},
+				{Operators.LESS, boolean},
+				{Operators.EQUALITY, boolean}
 			});
+			AddTypeBinding(boolean);
+			AddTypeBinding(str);
+			AddTypeBinding(integer);
 		}
 
-		public static Category GetCategoryFromType (TypeBinding type)
+		public static void AddTypeBinding (TypeBinding binding)
+		{
+			types.Add(binding.name, binding);
+		}
+
+
+		/*public static Category GetCategoryFromType (TypeBinding type)
 		{
 			if (type == boolean) {
 				return Category.Type_Boolean;
@@ -63,7 +79,19 @@ namespace CompilersProject
 				return str;
 			}
 			return null;
+		}*/
+
+		public static TypeBinding GetTypeByName (string type)
+		{
+			TypeBinding binding; 
+			if(!types.TryGetValue(type, out binding)) {
+				//at the moment types are hard coded, and invalid types cause
+				//lexical error so this is indication of faulty program logic
+				throw new InvalidOperationException("Invalid type: " + type);
+			}
+			return binding;
 		}
+
 
 		public static TypeBinding DecideType (Expression expression, SymbolTable symbolTable, ErrorContainer errors)
 		{
@@ -78,7 +106,7 @@ namespace CompilersProject
 					errors.addError (binOp.oper, ErrorType.Semantic_Error, "Types of left and right operand do not match");
 					return null;
 				}
-				var ret = rightType.Operate (binOp.oper.category);
+				var ret = rightType.Operate (binOp.oper.lexeme);
 				if(ret == null) {
 					errors.addError (binOp.oper, ErrorType.Semantic_Error, "Could not apply operator to given types");
 				}
@@ -89,7 +117,7 @@ namespace CompilersProject
 				if (operandType == null) {
 					return null;
 				}
-				var ret = operandType.Operate (unOp.oper.category);
+				var ret = operandType.Operate (unOp.oper.lexeme);
 				if(ret == null) {
 					errors.addError(unOp.oper, ErrorType.Semantic_Error, "Could not apply operator to given type");
 				}
@@ -98,14 +126,14 @@ namespace CompilersProject
 				var leaf = (ExpressionLeaf)expression;
 				switch(leaf.token.category) {
 				case Category.Literal_Integer:
-					return TypeBindings.integer;
+					return GetTypeByName(PRIMITIVE_INTEGER_NAME);
 				case Category.Literal_Boolean:
-					return TypeBindings.boolean;
+					return GetTypeByName (PRIMITIVE_BOOLEAN_NAME);
 				case Category.Literal_String:
-					return TypeBindings.str;
+					return GetTypeByName(PRIMITIVE_STRING_NAME);
 				case Category.Identifier:
 					if (symbolTable.isDeclared (leaf.token)) {
-						return TypeBindings.GetTypeFromCategory(symbolTable.GetVariableType(leaf.token));
+						return TypeBindings.GetTypeByName(symbolTable.GetVariableType(leaf.token));
 					} else {
 						errors.addError (leaf.token, ErrorType.Semantic_Error, "Undeclared variable");
 						return null;
@@ -124,29 +152,29 @@ namespace CompilersProject
 
 		public readonly string name;
 
-		private Dictionary<Category, TypeBinding> transitions;
+		private Dictionary<string, TypeBinding> transitions;
 			
-		public TypeBinding (string name, Dictionary<Category, TypeBinding> transitions)
+		public TypeBinding (string name, Dictionary<string, TypeBinding> transitions)
 		{
 			this.name = name;
 			this.transitions = transitions;
 		}
 
-		public TypeBinding (string name) : this(name, new Dictionary<Category, TypeBinding>())
+		public TypeBinding (string name) : this(name, new Dictionary<string, TypeBinding>())
 		{
 		}
 
-		public void AddOperator(Category oper, TypeBinding targetType)
+		public void AddOperator(string oper, TypeBinding targetType)
 		{
 			this.transitions.Add(oper, targetType);
 		}
 
-		public void AddOperators (Dictionary<Category, TypeBinding> transitions)
+		public void AddOperators (Dictionary<string, TypeBinding> transitions)
 		{
 			this.transitions = transitions;
 		}
 
-		public TypeBinding Operate(Category oper)
+		public TypeBinding Operate(string oper)
 		{
 			TypeBinding res;
 			transitions.TryGetValue(oper, out res);

@@ -15,7 +15,12 @@ namespace CompilersProject
 			this.errors = errors;
 		}
 
-		//performs a pass on the ast checking typebindings and declarations of identifiers
+		/*
+		 * performs a pass on the ast checking:
+		 * 		- declarations before assignments
+		 * 		- no violations to loop variable locking
+		 * 		- types produced by expression match declarations
+		 */
 		public void doTypeChecking ()
 		{
 			doTypeChecking(ast.statements);
@@ -37,7 +42,7 @@ namespace CompilersProject
 				} else {
 					symbolTable.Declare (declaration.identifier, declaration.type );
 					if(declaration.expression != null) {
-						doTypeChecking (declaration.expression, declaration.type.category);
+						doTypeChecking (declaration.expression, declaration.type.lexeme);
 					}
 				}
 			} else if (stmt is Assignment) {
@@ -51,8 +56,8 @@ namespace CompilersProject
 					//      for the entire loop body
 					//      might be good idea to refactor this later and remove such behaviour
 					symbolTable.Lock(loop.variable);
-					doTypeChecking (loop.from, Category.Type_Integer);
-					doTypeChecking (loop.to, Category.Type_Integer);
+					doTypeChecking (loop.from, TypeBindings.PRIMITIVE_INTEGER_NAME);
+					doTypeChecking (loop.to, TypeBindings.PRIMITIVE_INTEGER_NAME);
 					doTypeChecking (loop.statements);
 					symbolTable.Unlock();
 				});
@@ -60,7 +65,7 @@ namespace CompilersProject
 				doConsistencyChecking(((Print)stmt).expression);			
 			} else if (stmt is Assert) {
 				Assert assert = (Assert)stmt;
-				doTypeChecking(assert.assertion, Category.Type_Boolean);
+				doTypeChecking(assert.assertion, TypeBindings.PRIMITIVE_BOOLEAN_NAME);
 			} else if (stmt is Read) {
 				//just check if variable is not declared or locked with no-action
 				validateAssignmentAndDoAction(((Read)stmt).identifier, () => {} );
@@ -81,73 +86,19 @@ namespace CompilersProject
 		}
 
 
-		private void doTypeChecking (Expression expression, Category type)
+		private void doTypeChecking (Expression expression, string type)
 		{
 			/*if (TypeSystem.GetCategoryFromType (decideType (expression)) != type) {
 				errors.addError(expression.head(), ErrorType.Semantic_Error, "Expression does not match the required type");
 			}*/
 
-			if (TypeBindings.GetCategoryFromType (TypeBindings.DecideType(expression, symbolTable, errors)) != type) {
+			if (TypeBindings.DecideType(expression, symbolTable, errors).name != type) {
 				errors.addError(expression.head(), ErrorType.Semantic_Error, "Expression does not match the required type");
 			}
 		}
 
-		/*private TypeModel decideType (Expression expression)
-		{
-			if (expression is BinaryOperator) {
-				var binOp = (BinaryOperator)expression;
-				TypeModel leftType = decideType (binOp.leftOperand);
-				TypeModel rightType = decideType (binOp.rigtOperand);
-				if(leftType == null || rightType == null) {
-					return null;
-				}
-				if (leftType != rightType) {
-					errors.addError (binOp.oper, ErrorType.Semantic_Error, "Types of left and right operand do not match");
-					return null;
-				}
-				var ret = rightType.Operate (binOp.oper.category);
-				if(ret == null) {
-					errors.addError (binOp.oper, ErrorType.Semantic_Error, "Could not apply operator to given types");
-				}
-				return ret; 
-			} else if (expression is UnaryOperator) {
-				var unOp = (UnaryOperator)expression;
-				TypeModel operandType = decideType (unOp.operand);
-				if (operandType == null) {
-					return null;
-				}
-				var ret = operandType.Operate (unOp.oper.category);
-				if(ret == null) {
-					errors.addError(unOp.oper, ErrorType.Semantic_Error, "Could not apply operator to given type");
-				}
-				return ret;
-			} else if (expression is ExpressionLeaf) {
-				var leaf = (ExpressionLeaf)expression;
-				switch(leaf.token.category) {
-				case Category.Literal_Integer:
-					return TypeSystem.integer;
-				case Category.Literal_Boolean:
-					return TypeSystem.boolean;
-				case Category.Literal_String:
-					return TypeSystem.str;
-				case Category.Identifier:
-					if (symbolTable.isDeclared (leaf.token)) {
-						return TypeSystem.GetTypeFromCategory(symbolTable.GetVariableType(leaf.token));
-					} else {
-						errors.addError (leaf.token, ErrorType.Semantic_Error, "Undeclared variable");
-						return null;
-					}
-				}
-				return null;
-			}
-
-			return null;
-		}*/
-
-
-		//checks that given expression is consistent for exmaple bool + integer is inconsistent
+		//checks that given expression is consistent, namely that types of each left and right operand match
 		private void doConsistencyChecking (Expression expression) {
-			//decideType (expression);
 			TypeBindings.DecideType(expression, symbolTable, errors);
 		}
 

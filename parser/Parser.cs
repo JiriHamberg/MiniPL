@@ -126,21 +126,19 @@ namespace CompilersProject
 				expect (Category.Identifier);
 				((Declaration)ret).identifier = accepted;
 				expect (Category.Colon);
-				expect (Category.Type_Boolean, 
-				        Category.Type_Integer,
-				        Category.Type_String);
+				expect (Category.Type);
 				((Declaration)ret).type = accepted;
-				if (accept (Category.Operator_Assignment)) {
+				if (accept (Category.Assignment)) {
 					((Declaration)ret).expression = expression ();
 				}
 				//assignment
 			} else if (accept (Category.Identifier)) {
 				ret = new Assignment();
 				((Assignment)ret).identifier = accepted;
-				if (expect (Category.Operator_Assignment)) {
+				if (expect (Category.Assignment)) {
 					((Assignment)ret).expression = expression ();
 				} else {
-					System.Console.WriteLine("INVALID ASSIGNMENT!!!");
+					//System.Console.WriteLine("INVALID ASSIGNMENT!!!");
 					errors.addError(token, ErrorType.Syntax_Error, "Invalid assignment; expression expected");
 				}
 				//for loop
@@ -182,24 +180,18 @@ namespace CompilersProject
 		{
 			ExpressionBuilder builder = new ExpressionBuilder(errors);
 			buildExpression(builder);
-			return builder.build();
+			return builder.Build();
 		}
 
 		private void buildExpression(ExpressionBuilder builder) 
 		{
-			if (accept (Category.Operator_Not)) {
-				builder.offer(accepted);
+			if (accept (Category.Binary_Operator)) {
+				builder.Offer(accepted);
 				operand (builder);
 			} else {
 				operand (builder);
-				if (accept (Category.Operator_Addition,
-				        Category.Operator_Division,
-				        Category.Operator_Multiplication,
-				        Category.Operator_Substraction,
-				        Category.Operator_Equality,
-				        Category.Operator_Less,
-					    Category.Operator_And)) {
-					builder.offer(accepted);
+				if (accept (Category.Binary_Operator)) {
+					builder.Offer(accepted);
 					operand (builder);
 				}
 			}
@@ -211,14 +203,14 @@ namespace CompilersProject
 			if (accept (Category.Literal_Integer, 
 						Category.Literal_String,
 						Category.Identifier)) {
-				builder.offer(accepted);
+				builder.Offer(accepted);
 
 			//nested expression
 			} else if (accept (Category.Left_Bracket)) {
-				builder.offer(accepted);
+				builder.Offer(accepted);
 				buildExpression (builder);
 				expect (Category.Rigth_Bracket);
-				builder.offer (accepted);
+				builder.Offer (accepted);
 			} else {
 				/*addError(token, Category.Literal_Integer, 
 						 Category.Literal_String,

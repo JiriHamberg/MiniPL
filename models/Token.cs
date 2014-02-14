@@ -23,7 +23,7 @@ namespace CompilersProject
 			return new Token(Category.NONE, "", -1, -1);
 		}
 
-		public bool isBinaryOperator ()
+		/*public bool isBinaryOperator ()
 		{
 			return  category == Category.Operator_Addition ||
 					category == Category.Operator_Substraction ||
@@ -37,7 +37,7 @@ namespace CompilersProject
 		public bool isUnaryOperator ()
 		{
 			return category == Category.Operator_Not;
-		}
+		}*/
 
 		public bool isOperand ()
 		{
