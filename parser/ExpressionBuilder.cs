@@ -53,13 +53,13 @@ namespace CompilersProject
 			Expression ret = null;
 
 			if (outputStack.Count < 1) {
-				ExpressionLeaf e = new ExpressionLeaf();
-				e.token = Token.errorToken();
-				return e;
+				//ExpressionLeaf e = new ExpressionLeaf();
+				//e.token = Token.errorToken();
+				//return e;
+				return ret;
 			}
 
 			Token t = outputStack.Pop ();
-
 
 			if (t.isBinaryOperator()) {
 				ret = new BinaryOperator ();

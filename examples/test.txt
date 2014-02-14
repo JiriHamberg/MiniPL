@@ -1,18 +1,11 @@
+var piia : string := "hello Piia!\n";
+var i : int;
+var sum : int;
 
-var aaa : int;
-
-var bbb : int := 3 + ( aaa / 2 ) ;
-
-var c : bool := aaa < (bbb * 2);
-
-var asdf : int := 5;
-
-for asdf in 1 .. 5 do 
-	for aaa in 1 .. 5 do
-		print "aaa is now ";
-		print aaa;
-		print "\n";
-	end for;
-	print "\"LOL\"!!!\n";
-	print asdf;
+for i in 1 .. 10 do
+	sum := sum + i;
 end for;
+
+print "sum is: ";
+print sum;
+print "\n";
