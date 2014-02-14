@@ -86,9 +86,9 @@ namespace CompilersProject
 			this.message = message;
 		}
 
-		public ErrorEntry (int line, int column, ErrorType type, string message) : this(Token.errorToken(), type, message)
+		public ErrorEntry (int line, int column, ErrorType type, string message) : this(Token.ErrorToken(), type, message)
 		{
-			Token t = Token.errorToken();
+			Token t = Token.ErrorToken();
 			t.line = line;
 			t.column = column;
 			this.token = t;

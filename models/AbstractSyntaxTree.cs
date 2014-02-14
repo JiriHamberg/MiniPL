@@ -137,7 +137,7 @@ namespace CompilersProject
 	{
 		public Token oper;
 		public Expression leftOperand;
-		public Expression rigtOperand;
+		public Expression rightOperand;
 
 		public override Token head ()
 		{
@@ -146,7 +146,23 @@ namespace CompilersProject
 
 		public override string ToString ()
 		{
-			return oper.ToString() + " " + leftOperand.ToString() + " " + rigtOperand.ToString();
+			string s = "";
+			if (leftOperand is ExpressionLeaf) {
+				s += leftOperand.ToString ();
+			} else {
+				s += "(" + leftOperand.ToString() + ")";
+			}
+
+			s += " " + oper.ToString() + " ";
+
+			if (rightOperand is ExpressionLeaf) {
+				s += rightOperand.ToString ();
+			} else {
+				s += "(" + rightOperand.ToString() + ")";
+			}
+
+			return s;
+			//return oper.ToString() + " " + leftOperand.ToString() + " " + rigtOperand.ToString();
 		}
 	}
 

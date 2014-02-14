@@ -8,7 +8,7 @@ namespace CompilersProject
 		//literals
 		Literal_Integer,
 		Literal_String,
-		Literal_Boolean,
+		//Literal_Boolean, boolean literal not included according to language spec
 
 		//operators
 		Binary_Operator,

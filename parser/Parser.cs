@@ -39,7 +39,7 @@ namespace CompilersProject
 			if (scanner.HasNext ()) {
 				token = scanner.Next ();
 			} else {
-				token = Token.errorToken();
+				token = Token.ErrorToken();
 			}
 		}
 
@@ -52,7 +52,7 @@ namespace CompilersProject
 					return true;
 				}
 			}
-			accepted = Token.errorToken();
+			accepted = Token.ErrorToken();
 			return false;
 		}
 
@@ -185,7 +185,7 @@ namespace CompilersProject
 
 		private void buildExpression(ExpressionBuilder builder) 
 		{
-			if (accept (Category.Binary_Operator)) {
+			if (accept (Category.Unary_Operator)) {
 				builder.Offer(accepted);
 				operand (builder);
 			} else {

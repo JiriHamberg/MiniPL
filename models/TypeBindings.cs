@@ -13,9 +13,6 @@ namespace CompilersProject
 
 		private static Dictionary<string, TypeBinding> types = new Dictionary<string, TypeBinding>();
 
-		//public static readonly TypeBinding boolean = new TypeBinding("bool");
-		//public static readonly TypeBinding str = new TypeBinding("string");
-		//public static readonly TypeBinding integer = new TypeBinding("int");
 		public const string PRIMITIVE_INTEGER_NAME = "int";
 		public const string PRIMITIVE_STRING_NAME = "string";
 		public const string PRIMITIVE_BOOLEAN_NAME = "bool";
@@ -56,31 +53,6 @@ namespace CompilersProject
 			types.Add(binding.name, binding);
 		}
 
-
-		/*public static Category GetCategoryFromType (TypeBinding type)
-		{
-			if (type == boolean) {
-				return Category.Type_Boolean;
-			} else if (type == str) {
-				return Category.Type_String;
-			} else if (type == integer) {
-				return Category.Type_Integer;
-			}
-			return Category.NONE;
-		}
-
-		public static TypeBinding GetTypeFromCategory (Category category)
-		{
-			if (category == Category.Type_Integer) {
-				return integer;
-			} else if (category == Category.Type_Boolean) {
-				return boolean;
-			} else if (category == Category.Type_String) {
-				return str;
-			}
-			return null;
-		}*/
-
 		public static TypeBinding GetTypeByName (string type)
 		{
 			TypeBinding binding; 
@@ -98,7 +70,7 @@ namespace CompilersProject
 			if (expression is BinaryOperator) {
 				var binOp = (BinaryOperator)expression;
 				TypeBinding leftType = DecideType (binOp.leftOperand, symbolTable, errors);
-				TypeBinding rightType = DecideType (binOp.rigtOperand, symbolTable, errors);
+				TypeBinding rightType = DecideType (binOp.rightOperand, symbolTable, errors);
 				if(leftType == null || rightType == null) {
 					return null;
 				}
@@ -127,8 +99,6 @@ namespace CompilersProject
 				switch(leaf.token.category) {
 				case Category.Literal_Integer:
 					return GetTypeByName(PRIMITIVE_INTEGER_NAME);
-				case Category.Literal_Boolean:
-					return GetTypeByName (PRIMITIVE_BOOLEAN_NAME);
 				case Category.Literal_String:
 					return GetTypeByName(PRIMITIVE_STRING_NAME);
 				case Category.Identifier:

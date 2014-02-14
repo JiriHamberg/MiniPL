@@ -65,7 +65,7 @@ namespace CompilersProject
 				ret = new BinaryOperator ();
 				((BinaryOperator)ret).oper = t;
 				((BinaryOperator)ret).leftOperand = buildExpression ();
-				((BinaryOperator)ret).rigtOperand = buildExpression ();
+				((BinaryOperator)ret).rightOperand = buildExpression ();
 			} else if (t.category == Category.Unary_Operator) {
 				ret = new UnaryOperator ();
 				((UnaryOperator)ret).oper = t;
@@ -88,7 +88,6 @@ namespace CompilersProject
 				case Category.Identifier:
 				case Category.Literal_Integer:
 				case Category.Literal_String:
-				case Category.Literal_Boolean:
 					outputStack.Push (t);
 					break;
 				

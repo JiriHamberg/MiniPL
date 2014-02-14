@@ -1,6 +1,8 @@
-var piia : string := "hello Piia!\n";
+
 var i : int;
 var sum : int;
+
+var test : bool := (3 < (2*2)) & ( 4 < (1 + 2));
 
 for i in 1 .. 10 do
 	sum := sum + i;
@@ -9,3 +11,5 @@ end for;
 print "sum is: ";
 print sum;
 print "\n";
+
+assert ( !((3 < (2*2)) & ( 4 < (1 + 2))) );

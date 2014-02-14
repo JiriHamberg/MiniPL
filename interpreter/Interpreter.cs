@@ -36,9 +36,6 @@ namespace CompilersProject
 					//use default value
 					TypeBinding binding = TypeBindings.GetTypeByName(declaration.type.lexeme);
 					object defaultValue = TypeModels.GetDefaultValue(binding);
-
-					//Console.WriteLine("Default value: " + defaultValue);
-
 					symbolTable.Declare(declaration.identifier, declaration.type, defaultValue);
 				} else {
 					symbolTable.Declare(declaration.identifier, declaration.type, Evaluate(declaration.expression));
@@ -55,7 +52,6 @@ namespace CompilersProject
 					Interprete(loop.statements);
 				}
 			} else if (stmt is Print) {
-				//Console.Write ("PRINT STUFF!!!");
 				var print = (Print)stmt;
 				object evaluation = Evaluate(print.expression);
 				//output.Write(evaluation.ToString());
@@ -63,7 +59,7 @@ namespace CompilersProject
 			} else if (stmt is Assert) {
 				var assert = (Assert)stmt;
 				if(!(bool)Evaluate(assert.assertion)) {
-					assertionMessage(assert.location.line, assert.location.column);
+					assertionMessage(assert.location.line, assert.location.column, assert.assertion);
 				}
 			} else if (stmt is Read) {
 				var read = (Read)stmt;
@@ -80,7 +76,7 @@ namespace CompilersProject
 				TypeBinding binding = TypeBindings.DecideType(binOp.leftOperand, symbolTable, errors);
 
 				return TypeModels.EvaluateBinaryOperator(binding, binOp.oper.lexeme,
-				                                  Evaluate (binOp.leftOperand), Evaluate(binOp.rigtOperand));
+				                                  Evaluate (binOp.leftOperand), Evaluate(binOp.rightOperand));
 			} else if (expression is UnaryOperator) {
 				var unOp = (UnaryOperator)expression;
 				TypeBinding binding = TypeBindings.DecideType(unOp.operand, symbolTable, errors);
@@ -94,9 +90,6 @@ namespace CompilersProject
 				{
 					case Category.Literal_Integer:
 						return int.Parse(leaf.token.lexeme);
-						break;
-					case Category.Literal_Boolean:
-						return bool.Parse(leaf.token.lexeme);
 						break;
 					case Category.Literal_String:
 						return leaf.token.lexeme;
@@ -133,11 +126,12 @@ namespace CompilersProject
 			throw new EndOfStreamException("The input closed unexpectedly");
 		}
 
-		private void assertionMessage (int line, int column)
+		private void assertionMessage (int line, int column, Expression e)
 		{
 			string s = "Assertion near line " + line;
-			s = s + " column " + column + " failed.";
-			output.WriteLine(s);
+			s = s + " column " + column + " failed. Assertion \"" + e.ToString() + "\" was false.";
+			//output.WriteLine(s);
+			Console.WriteLine(s);
 		}
 	}
 }
