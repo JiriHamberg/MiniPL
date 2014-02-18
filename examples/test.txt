@@ -1,26 +1,11 @@
+print "hello world!\n";
 
+var n : int;
 var i : int;
-var sum : int;
+print "I will count from n to 1. Give n:";
+read n;
 
-var myInt : int;
-
-print "Give an integer: ";
-read myInt;
-print "Your integer + 22 = ";
-print myInt + 22;
-print "\n";
-
-var test : bool := (3 < (2*2)) & ( 4 < (1 + 2));
-print test;
-print "\n";
-
-
-for i in 1 .. 10 do
-	sum := sum + i;
+for i in 0 .. n - 1 do
+    print n - i;
+    print "\n";
 end for;
-
-print "sum is: ";
-print sum;
-print "\n";
-
-assert ( !(!((3 < (2*2)) & ( 4 < (1 + 2)))) );

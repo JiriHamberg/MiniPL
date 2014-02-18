@@ -74,7 +74,7 @@ namespace CompilersProject
 				//errors.addError (ErrorType.Runtime_Error, "No implementation for typebinding " + type.ToString ());
 				throw new InvalidOperationException("No implementation for typebinding " + type.ToString ());
 			}
-			if (!model.binaryOperatorImplementations.TryGetValue (oper, out binOp)) {
+			if (!model.BinaryOperatorImplementations.TryGetValue (oper, out binOp)) {
 				throw new InvalidOperationException("Type model for type binding " + type.ToString() + " does not implement operator " + oper);
 			}
 			return binOp(leftOperand, rightOperand);
@@ -87,7 +87,7 @@ namespace CompilersProject
 			if (!models.TryGetValue (type, out model)) {
 				throw new InvalidOperationException("No implementation for typebinding " + type.ToString ());
 			}
-			if (!model.unaryOperatorImplementations.TryGetValue (oper, out unOp)) {
+			if (!model.UnaryOperatorImplementations.TryGetValue (oper, out unOp)) {
 				throw new InvalidOperationException("Type model for type binding " + type.ToString() + " does not implement operator " + oper);
 			}
 			return unOp(operand);
@@ -98,29 +98,29 @@ namespace CompilersProject
 			if (!models.TryGetValue (binding, out model)) {
 				throw new InvalidOperationException("No implementation for typebinding " + binding.ToString ());
 			}
-			return model.defaultValue;
+			return model.DefaultValue;
 		}
 	}
 
 
 	public class TypeModel {
-		public object defaultValue;
-		public Dictionary<string, Func<object, object, object>> binaryOperatorImplementations;
-		public Dictionary<string, Func<object, object>> unaryOperatorImplementations;
+		public object DefaultValue;
+		public Dictionary<string, Func<object, object, object>> BinaryOperatorImplementations;
+		public Dictionary<string, Func<object, object>> UnaryOperatorImplementations;
 
 		public TypeModel (object defaultValue)
 		{
-			this.defaultValue = defaultValue;
+			this.DefaultValue = defaultValue;
 		}
 
 		public void AddBinaryOperators (Dictionary<string, Func<object, object, object>> binOps)
 		{
-			this.binaryOperatorImplementations = binOps;
+			this.BinaryOperatorImplementations = binOps;
 		}
 
 		public void AddUnaryOperators (Dictionary<string, Func<object, object>> unOps)
 		{
-			this.unaryOperatorImplementations = unOps;
+			this.UnaryOperatorImplementations = unOps;
 		}
 	}
 

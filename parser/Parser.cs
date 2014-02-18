@@ -27,7 +27,7 @@ namespace CompilersProject
 			AbstractSyntaxTree ast = new AbstractSyntaxTree();
 			getNextToken ();
 			while (scanner.HasNext()) {
-				ast.statements.mergeStatements(statements ());
+				ast.Statements.MergeStatements(statements ());
 			}
 			return ast;
 		}
@@ -46,7 +46,7 @@ namespace CompilersProject
 		private bool accept (params Category[] categories)
 		{
 			foreach (Category category in categories) {
-				if(category == token.category) {
+				if(category == token.Category) {
 					accepted = token;
 					getNextToken ();
 					return true;
@@ -72,8 +72,8 @@ namespace CompilersProject
 			for (int i=1; i <expected.Length; i++) {
 				errorMsg = errorMsg + " or " + expected[i];
 			}
-			errorMsg = errorMsg +	", but found " + found.category;
-			errors.addError(token, ErrorType.Syntax_Error, errorMsg); 
+			errorMsg = errorMsg +	", but found " + found.Category;
+			errors.AddError(token, ErrorType.Syntax_Error, errorMsg); 
 		}
 
 		//naive recovery strategy: continue parsing from the next token
@@ -101,17 +101,17 @@ namespace CompilersProject
 		private Statements statements ()
 		{
 			Statements ret = new Statements();
-			ret.addStatement(statement ());
+			ret.AddStatement(statement ());
 			expect (Category.Semicolon);
 
 			//maximum munch
-			while (token.category == Category.Keyword_Var || 
-				token.category == Category.Identifier ||
-				token.category == Category.Keyword_For ||
-				token.category == Category.Function_Read ||
-				token.category == Category.Function_Print ||
-				token.category == Category.Function_Assert) {
-				ret.addStatement(statement ());
+			while (token.Category == Category.Keyword_Var || 
+				token.Category == Category.Identifier ||
+				token.Category == Category.Keyword_For ||
+				token.Category == Category.Function_Read ||
+				token.Category == Category.Function_Print ||
+				token.Category == Category.Function_Assert) {
+				ret.AddStatement(statement ());
 				expect (Category.Semicolon);
 			}
 			return ret;
@@ -124,54 +124,54 @@ namespace CompilersProject
 			if (accept (Category.Keyword_Var)) {
 				ret = new Declaration();
 				expect (Category.Identifier);
-				((Declaration)ret).identifier = accepted;
+				((Declaration)ret).Identifier = accepted;
 				expect (Category.Colon);
 				expect (Category.Type);
-				((Declaration)ret).type = accepted;
+				((Declaration)ret).Type = accepted;
 				if (accept (Category.Assignment)) {
-					((Declaration)ret).expression = expression ();
+					((Declaration)ret).Expression = expression ();
 				}
 				//assignment
 			} else if (accept (Category.Identifier)) {
 				ret = new Assignment();
-				((Assignment)ret).identifier = accepted;
+				((Assignment)ret).Identifier = accepted;
 				if (expect (Category.Assignment)) {
-					((Assignment)ret).expression = expression ();
+					((Assignment)ret).Expression = expression ();
 				} else {
 					//System.Console.WriteLine("INVALID ASSIGNMENT!!!");
-					errors.addError(token, ErrorType.Syntax_Error, "Invalid assignment; expression expected");
+					errors.AddError(token, ErrorType.Syntax_Error, "Invalid assignment; expression expected");
 				}
 				//for loop
 			} else if (accept (Category.Keyword_For)) {
 				ret = new ForLoop();
 				expect (Category.Identifier);
-				((ForLoop)ret).variable = accepted;
+				((ForLoop)ret).Variable = accepted;
 				expect (Category.Keyword_In);
-				((ForLoop)ret).from = expression ();
+				((ForLoop)ret).From = expression ();
 				expect (Category.Loop_Range);
-				((ForLoop)ret).to = expression ();
+				((ForLoop)ret).To = expression ();
 				expect (Category.Keyword_Do);
-				((ForLoop)ret).statements = statements ();
+				((ForLoop)ret).Statements = statements ();
 				expect (Category.Keyword_End);
 				expect (Category.Keyword_For);
 				//read
 			} else if (accept (Category.Function_Read)) {
 				ret = new Read();
 				expect (Category.Identifier);
-				((Read)ret).identifier = accepted;
+				((Read)ret).Identifier = accepted;
 				//print
 			} else if (accept (Category.Function_Print)) {
 				ret = new Print();
-				((Print)ret).expression = expression ();
+				((Print)ret).Expression = expression ();
 				//assert
 			} else if (accept (Category.Function_Assert)) {
 				ret = new Assert();
-				((Assert)ret).location = accepted;
+				((Assert)ret).Location = accepted;
 				expect (Category.Left_Bracket);
-				((Assert)ret).assertion = expression ();
+				((Assert)ret).Assertion = expression ();
 				expect (Category.Rigth_Bracket);
 			} else {
-				errors.addError(token, ErrorType.Syntax_Error, "Expecting a statement");
+				errors.AddError(token, ErrorType.Syntax_Error, "Expecting a statement");
 			}
 			return ret;
 		}
@@ -216,7 +216,7 @@ namespace CompilersProject
 						 Category.Literal_String,
 						 Category.Identifier,
 				         Category.Left_Bracket);*/
-				errors.addError(token, ErrorType.Syntax_Error, "Expecting an operand");
+				errors.AddError(token, ErrorType.Syntax_Error, "Expecting an operand");
 			}
 		}
 

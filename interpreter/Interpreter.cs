@@ -14,12 +14,12 @@ namespace CompilersProject
 
 		public void Interprete(AbstractSyntaxTree ast)
 		{
-			Interprete(ast.statements);
+			Interprete(ast.Statements);
 		}
 
 		private void Interprete (Statements stmts)
 		{
-			foreach (var stmt in stmts.statements) {
+			foreach (var stmt in stmts.StatementList) {
 				Interprete(stmt);
 			}
 		}
@@ -28,45 +28,45 @@ namespace CompilersProject
 		{
 			if (stmt is Declaration) {
 				var declaration = (Declaration)stmt;
-				if(declaration.expression == null) {
+				if(declaration.Expression == null) {
 					//use default value
-					TypeBinding binding = TypeBindings.GetTypeByName(declaration.type.lexeme);
+					TypeBinding binding = TypeBindings.GetTypeByName(declaration.Type.Lexeme);
 					object defaultValue = TypeModels.GetDefaultValue(binding);
-					symbolTable.Declare(declaration.identifier, declaration.type, defaultValue);
+					symbolTable.Declare(declaration.Identifier, declaration.Type, defaultValue);
 				} else {
-					symbolTable.Declare(declaration.identifier, declaration.type, Evaluate(declaration.expression));
+					symbolTable.Declare(declaration.Identifier, declaration.Type, Evaluate(declaration.Expression));
 				}				
 			} else if (stmt is Assignment) {
 				var assignment = ((Assignment)stmt);
-				symbolTable.Assign(assignment.identifier, Evaluate(assignment.expression));
+				symbolTable.Assign(assignment.Identifier, Evaluate(assignment.Expression));
 			} else if (stmt is ForLoop) {
 				var loop = (ForLoop)stmt;
-				int low = (int)Evaluate (loop.from);
-				int high = (int)Evaluate(loop.to);				
+				int low = (int)Evaluate (loop.From);
+				int high = (int)Evaluate(loop.To);				
 				for(int i = low; i<=high; i++) {
-					symbolTable.Assign(loop.variable, i);
-					Interprete(loop.statements);
+					symbolTable.Assign(loop.Variable, i);
+					Interprete(loop.Statements);
 				}
 			} else if (stmt is Print) {
 				var print = (Print)stmt;
-				object evaluation = Evaluate(print.expression);
+				object evaluation = Evaluate(print.Expression);
 				Console.Write (evaluation.ToString());
 			} else if (stmt is Assert) {
 				var assert = (Assert)stmt;
-				if(!(bool)Evaluate(assert.assertion)) {
-					assertionMessage(assert.location.line, assert.location.column, assert.assertion);
+				if(!(bool)Evaluate(assert.Assertion)) {
+					assertionMessage(assert.Location.Line, assert.Location.Column, assert.Assertion);
 				}
 			} else if (stmt is Read) {
 				var read = (Read)stmt;
 				//todo: convert to correct type
-				string type = symbolTable.GetVariableType(read.identifier);
+				string type = symbolTable.GetVariableType(read.Identifier);
 				object inputValue = readNextWord();
 				if(type == TypeBindings.PRIMITIVE_INTEGER_NAME) {
 					inputValue = int.Parse((string)inputValue);
 				} else if(type == TypeBindings.PRIMITIVE_BOOLEAN_NAME) {
 					inputValue = bool.Parse((string)inputValue);
 				}			
-				symbolTable.Assign(read.identifier, inputValue);
+				symbolTable.Assign(read.Identifier, inputValue);
 			}
 		}
 
@@ -74,29 +74,29 @@ namespace CompilersProject
 		{
 			if (expression is BinaryOperator) {
 				var binOp = (BinaryOperator)expression;
-				TypeBinding binding = TypeBindings.DecideType(binOp.leftOperand, symbolTable, errors);
+				TypeBinding binding = TypeBindings.DecideType(binOp.LeftOperand, symbolTable, errors);
 
-				return TypeModels.EvaluateBinaryOperator(binding, binOp.oper.lexeme,
-				                                  Evaluate (binOp.leftOperand), Evaluate(binOp.rightOperand));
+				return TypeModels.EvaluateBinaryOperator(binding, binOp.Oper.Lexeme,
+				                                  Evaluate (binOp.LeftOperand), Evaluate(binOp.RightOperand));
 			} else if (expression is UnaryOperator) {
 				var unOp = (UnaryOperator)expression;
-				TypeBinding binding = TypeBindings.DecideType(unOp.operand, symbolTable, errors);
+				TypeBinding binding = TypeBindings.DecideType(unOp.Operand, symbolTable, errors);
 
-				return TypeModels.EvaluateUnaryOperator(binding, unOp.oper.lexeme,
-				                                        Evaluate (unOp.operand));
+				return TypeModels.EvaluateUnaryOperator(binding, unOp.Oper.Lexeme,
+				                                        Evaluate (unOp.Operand));
 			} else if (expression is ExpressionLeaf) {
 				var leaf = (ExpressionLeaf)expression;
-				switch(leaf.token.category) 
+				switch(leaf.Token.Category) 
 				{
 					case Category.Literal_Integer:
-						return int.Parse(leaf.token.lexeme);
+						return int.Parse(leaf.Token.Lexeme);
 						break;
 					case Category.Literal_String:
-						return leaf.token.lexeme;
+						return leaf.Token.Lexeme;
 						break;
 					case Category.Identifier:
-						if (symbolTable.isDeclared (leaf.token)) {
-							return symbolTable.GetValue(leaf.token);
+						if (symbolTable.IsDeclared (leaf.Token)) {
+							return symbolTable.GetValue(leaf.Token);
 						} else {
 							//should be handled by semantic analyser
 							throw new InvalidOperationException("Undeclared variable");
@@ -107,8 +107,8 @@ namespace CompilersProject
 				}
 			}
 			Console.WriteLine(expression.GetType());
-			Console.WriteLine("Category: " + expression.head().category);
-			Console.WriteLine ("Line " + expression.head().line);
+			Console.WriteLine("Category: " + expression.Head().Category);
+			Console.WriteLine ("Line " + expression.Head().Line);
 			throw new InvalidOperationException("Unrecognized expression class");
 		}
 

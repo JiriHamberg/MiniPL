@@ -61,18 +61,18 @@ namespace CompilersProject
 
 			Token t = outputStack.Pop ();
 
-			if (t.category == Category.Binary_Operator) {
+			if (t.Category == Category.Binary_Operator) {
 				ret = new BinaryOperator ();
-				((BinaryOperator)ret).oper = t;
-				((BinaryOperator)ret).leftOperand = buildExpression ();
-				((BinaryOperator)ret).rightOperand = buildExpression ();
-			} else if (t.category == Category.Unary_Operator) {
+				((BinaryOperator)ret).Oper = t;
+				((BinaryOperator)ret).LeftOperand = buildExpression ();
+				((BinaryOperator)ret).RightOperand = buildExpression ();
+			} else if (t.Category == Category.Unary_Operator) {
 				ret = new UnaryOperator ();
-				((UnaryOperator)ret).oper = t;
-				((UnaryOperator)ret).operand = buildExpression ();
+				((UnaryOperator)ret).Oper = t;
+				((UnaryOperator)ret).Operand = buildExpression ();
 			} else {
 				ret = new ExpressionLeaf();
-				((ExpressionLeaf)ret).token = t;
+				((ExpressionLeaf)ret).Token = t;
 			}
 			return ret;
 		}
@@ -83,7 +83,7 @@ namespace CompilersProject
 			while (inputStack.Count > 0) {
 				Token t = inputStack.Pop ();
 
-				switch (t.category) {
+				switch (t.Category) {
 				//operand
 				case Category.Identifier:
 				case Category.Literal_Integer:
@@ -99,7 +99,7 @@ namespace CompilersProject
 				//left bracket
 				case Category.Left_Bracket:
 					while (operStack.Count > 0) {
-						if (operStack.Peek ().category == Category.Rigth_Bracket) {
+						if (operStack.Peek ().Category == Category.Rigth_Bracket) {
 							operStack.Pop ();
 							break; //end while
 						} else {
@@ -115,8 +115,8 @@ namespace CompilersProject
 						Token top = operStack.Peek ();
 						int precTop = -1;
 						int precCur = -1;
-						precedence.TryGetValue (top.lexeme, out precTop);
-						precedence.TryGetValue (t.lexeme, out precCur);
+						precedence.TryGetValue (top.Lexeme, out precTop);
+						precedence.TryGetValue (t.Lexeme, out precCur);
 						if (precTop >= precCur) {
 							outputStack.Push (operStack.Pop ());
 						} else {
@@ -130,7 +130,7 @@ namespace CompilersProject
 
 			while (operStack.Count > 0) {
 				Token t = operStack.Pop();
-				if(t.category != Category.Rigth_Bracket) {
+				if(t.Category != Category.Rigth_Bracket) {
 					outputStack.Push(t);
 				} else {
 					//the input contains errors. parser should have handled this!

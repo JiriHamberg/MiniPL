@@ -44,13 +44,13 @@ namespace CompilersProject
 
 		private bool doSemanticAnylysis() {
 			this.analyser = new SemanticAnalyser(ast, errors);
-			analyser.doTypeChecking();
+			analyser.DoTypeChecking();
 			string errMsg = "Your program contained some semantic errors and could not be interpreted:";
 			return doErrorCheckingAndWriteErrorMessages(errMsg, ErrorType.Semantic_Error);
 		}
 
 		private bool doErrorCheckingAndWriteErrorMessages(string msg, ErrorType errType) {
-			var errList = errors.getErrorsByType(errType);
+			var errList = errors.GetErrorsByType(errType);
 			if (errList.Count > 0) {
 				Console.WriteLine(msg);
 				foreach(var e in errList) {

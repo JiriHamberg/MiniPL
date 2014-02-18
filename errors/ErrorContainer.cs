@@ -19,7 +19,7 @@ namespace CompilersProject
 			}
 		}
 
-		public IList<ErrorEntry> getErrorsByType (ErrorType errType)
+		public IList<ErrorEntry> GetErrorsByType (ErrorType errType)
 		{
 			List<ErrorEntry> errList = null;
 			if (!errors.TryGetValue (errType, out errList)) {
@@ -28,7 +28,7 @@ namespace CompilersProject
 			return errList.AsReadOnly();
 		}
 
-		public IList<ErrorEntry> getAllErrors ()
+		public IList<ErrorEntry> GetAllErrors ()
 		{
 			var errList = new List<ErrorEntry>();
 			foreach (var list in errors.Values) {
@@ -37,7 +37,7 @@ namespace CompilersProject
 			return errList.AsReadOnly();
 		}
 
-		public void addError (ErrorEntry err)
+		public void AddError (ErrorEntry err)
 		{
 			List<ErrorEntry> errList = null;
 			if (!errors.TryGetValue (err.type, out errList)) {
@@ -46,22 +46,22 @@ namespace CompilersProject
 			errList.Add(err);
 		}
 
-		public void addError (Token token, ErrorType type, string message)
+		public void AddError (Token token, ErrorType type, string message)
 		{
 			var err = new ErrorEntry(token, type, message);
-			addError (err);
+			AddError (err);
 		}
 
-		public void addError (int line, int column, ErrorType type, string message)
+		public void AddError (int line, int column, ErrorType type, string message)
 		{
 			var err = new ErrorEntry(line, column, type, message);
-			addError (err);
+			AddError (err);
 		}
 
-		public void addError (ErrorType type, string message)
+		public void AddError (ErrorType type, string message)
 		{
 			var err = new ErrorEntry(type, message);
-			addError (err);
+			AddError (err);
 		}
 
 	}
@@ -89,8 +89,8 @@ namespace CompilersProject
 		public ErrorEntry (int line, int column, ErrorType type, string message) : this(Token.ErrorToken(), type, message)
 		{
 			Token t = Token.ErrorToken();
-			t.line = line;
-			t.column = column;
+			t.Line = line;
+			t.Column = column;
 			this.token = t;
 		}
 
@@ -105,11 +105,11 @@ namespace CompilersProject
 			string s = "";
 			if (token.HasValue) {
 				s = s + "Error near ";
-				if (token.Value.category != Category.NONE) {
-					s = s + "\"" + token.Value.lexeme + "\" on ";
+				if (token.Value.Category != Category.NONE) {
+					s = s + "\"" + token.Value.Lexeme + "\" on ";
 				}
 				s = s + string.Format ("line {0} column {1}: {2}",
-				                     token.Value.line, token.Value.column, message);
+				                     token.Value.Line, token.Value.Column, message);
 			} else {
 				s = s + message;
 			}

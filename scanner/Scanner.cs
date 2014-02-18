@@ -159,10 +159,10 @@ namespace CompilersProject
 			decideCategory(); 
 
 			Token token = new Token ();
-			token.lexeme = lexeme;
-			token.category = category;
-			token.line = lexeme_begin_line;
-			token.column = lexeme_begin_column;
+			token.Lexeme = lexeme;
+			token.Category = category;
+			token.Line = lexeme_begin_line;
+			token.Column = lexeme_begin_column;
 			return token;
 		}
 
@@ -181,7 +181,7 @@ namespace CompilersProject
 			try {
 				match.Value ();
 			} catch (NullReferenceException ex) {
-				errors.addError(lexeme_begin_line, lexeme_begin_column, ErrorType.Lexical_Error, "Invalid input character");
+				errors.AddError(lexeme_begin_line, lexeme_begin_column, ErrorType.Lexical_Error, "Invalid input character");
 			}
 			//match.Value();
 		}
@@ -212,13 +212,13 @@ namespace CompilersProject
 						}
 
 					} else {
-						errors.addError (lexeme_begin_line, lexeme_begin_column, ErrorType.Lexical_Error, "Unclosed string literal");
+						errors.AddError (lexeme_begin_line, lexeme_begin_column, ErrorType.Lexical_Error, "Unclosed string literal");
 					}
 				} else if (lookup == '"') { 
 					nextChar ();
 					break;
 				} else {
-					errors.addError (lexeme_begin_line, lexeme_begin_column, ErrorType.Lexical_Error, "Unclosed string literal");
+					errors.AddError (lexeme_begin_line, lexeme_begin_column, ErrorType.Lexical_Error, "Unclosed string literal");
 				}
 			}
 		}
@@ -234,7 +234,7 @@ namespace CompilersProject
 				category = Category.Identifier;
 			} else{
 				category = Category.NONE; //marks invalid token
-				errors.addError(line, column, ErrorType.Lexical_Error, "Invalid identifier: " + lexeme);
+				errors.AddError(line, column, ErrorType.Lexical_Error, "Invalid identifier: " + lexeme);
 			}
 		}
 

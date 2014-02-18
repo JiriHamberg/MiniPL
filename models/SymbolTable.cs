@@ -17,7 +17,7 @@ namespace CompilersProject
 
 		public void Lock (Token identifier)
 		{
-			symbolLock.Push(identifier.lexeme);
+			symbolLock.Push(identifier.Lexeme);
 		}
 
 		public void Unlock ()
@@ -27,7 +27,7 @@ namespace CompilersProject
 
 		public void Declare(Token identifier, Token type, object value) 
 		{
-			symbols.Add(identifier.lexeme, new SymbolTableEntry( type.lexeme, value));
+			symbols.Add(identifier.Lexeme, new SymbolTableEntry( type.Lexeme, value));
 		}
 
 		public void Declare (Token identifier, Token type)
@@ -38,45 +38,45 @@ namespace CompilersProject
 		public void Assign (Token token, object value)
 		{
 			SymbolTableEntry entry;
-			symbols.TryGetValue(token.lexeme, out entry);
-			entry.value = value;
+			symbols.TryGetValue(token.Lexeme, out entry);
+			entry.Value = value;
 		}
 
-		public bool isDeclared (Token identifier)
+		public bool IsDeclared (Token identifier)
 		{
-			return symbols.ContainsKey(identifier.lexeme);
+			return symbols.ContainsKey(identifier.Lexeme);
 		}
 
-		public bool isLocked (Token identifier)
+		public bool IsLocked (Token identifier)
 		{
-			return symbolLock.Contains(identifier.lexeme);
+			return symbolLock.Contains(identifier.Lexeme);
 		}
 
 		public object GetValue (Token identifier)
 		{
 			SymbolTableEntry entry;
-			symbols.TryGetValue(identifier.lexeme, out entry);
-			return entry.value;
+			symbols.TryGetValue(identifier.Lexeme, out entry);
+			return entry.Value;
 		}
 
 		public string GetVariableType (Token identifier)
 		{
 			SymbolTableEntry entry;
-			symbols.TryGetValue(identifier.lexeme, out entry);
-			return entry.variableType;
+			symbols.TryGetValue(identifier.Lexeme, out entry);
+			return entry.VariableType;
 		}
 
 	}
 
 	public class SymbolTableEntry {
 
-		public readonly string variableType;
-		public object value {get; set;}
+		public readonly string VariableType;
+		public object Value {get; set;}
 
 		public SymbolTableEntry (string variableType, object value)
 		{
-			this.variableType = variableType;
-			this.value = value;
+			this.VariableType = variableType;
+			this.Value = value;
 		}
 
 		public SymbolTableEntry (string variableType) : this(variableType, null)

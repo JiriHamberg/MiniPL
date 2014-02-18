@@ -50,7 +50,7 @@ namespace CompilersProject
 
 		public static void AddTypeBinding (TypeBinding binding)
 		{
-			types.Add(binding.name, binding);
+			types.Add(binding.Name, binding);
 		}
 
 		public static TypeBinding GetTypeByName (string type)
@@ -69,43 +69,43 @@ namespace CompilersProject
 		{
 			if (expression is BinaryOperator) {
 				var binOp = (BinaryOperator)expression;
-				TypeBinding leftType = DecideType (binOp.leftOperand, symbolTable, errors);
-				TypeBinding rightType = DecideType (binOp.rightOperand, symbolTable, errors);
+				TypeBinding leftType = DecideType (binOp.LeftOperand, symbolTable, errors);
+				TypeBinding rightType = DecideType (binOp.RightOperand, symbolTable, errors);
 				if(leftType == null || rightType == null) {
 					return null;
 				}
 				if (leftType != rightType) {
-					errors.addError (binOp.oper, ErrorType.Semantic_Error, "Types of left and right operand do not match");
+					errors.AddError (binOp.Oper, ErrorType.Semantic_Error, "Types of left and right operand do not match");
 					return null;
 				}
-				var ret = rightType.Operate (binOp.oper.lexeme);
+				var ret = rightType.Operate (binOp.Oper.Lexeme);
 				if(ret == null) {
-					errors.addError (binOp.oper, ErrorType.Semantic_Error, "Could not apply operator to given types");
+					errors.AddError (binOp.Oper, ErrorType.Semantic_Error, "Could not apply operator to given types");
 				}
 				return ret; 
 			} else if (expression is UnaryOperator) {
 				var unOp = (UnaryOperator)expression;
-				TypeBinding operandType = DecideType (unOp.operand, symbolTable, errors);
+				TypeBinding operandType = DecideType (unOp.Operand, symbolTable, errors);
 				if (operandType == null) {
 					return null;
 				}
-				var ret = operandType.Operate (unOp.oper.lexeme);
+				var ret = operandType.Operate (unOp.Oper.Lexeme);
 				if(ret == null) {
-					errors.addError(unOp.oper, ErrorType.Semantic_Error, "Could not apply operator to given type");
+					errors.AddError(unOp.Oper, ErrorType.Semantic_Error, "Could not apply operator to given type");
 				}
 				return ret;
 			} else if (expression is ExpressionLeaf) {
 				var leaf = (ExpressionLeaf)expression;
-				switch(leaf.token.category) {
+				switch(leaf.Token.Category) {
 				case Category.Literal_Integer:
 					return GetTypeByName(PRIMITIVE_INTEGER_NAME);
 				case Category.Literal_String:
 					return GetTypeByName(PRIMITIVE_STRING_NAME);
 				case Category.Identifier:
-					if (symbolTable.isDeclared (leaf.token)) {
-						return TypeBindings.GetTypeByName(symbolTable.GetVariableType(leaf.token));
+					if (symbolTable.IsDeclared (leaf.Token)) {
+						return TypeBindings.GetTypeByName(symbolTable.GetVariableType(leaf.Token));
 					} else {
-						errors.addError (leaf.token, ErrorType.Semantic_Error, "Undeclared variable");
+						errors.AddError (leaf.Token, ErrorType.Semantic_Error, "Undeclared variable");
 						return null;
 					}
 				}
@@ -120,13 +120,13 @@ namespace CompilersProject
 
 	public class TypeBinding {
 
-		public readonly string name;
+		public readonly string Name;
 
 		private Dictionary<string, TypeBinding> transitions;
 			
 		public TypeBinding (string name, Dictionary<string, TypeBinding> transitions)
 		{
-			this.name = name;
+			this.Name = name;
 			this.transitions = transitions;
 		}
 
