@@ -173,12 +173,17 @@ namespace CompilersProject
 			}
 
 			current = nextChar ();
-			lexeme  += current;
-			lexeme_begin_column = column -1;
+			lexeme += current;
+			lexeme_begin_column = column - 1;
 			lexeme_begin_line = line;
 			//find the action corresponding to the current character and invoke it
-			var match = transitionTable.Find( kvp => kvp.Key(current));
-			match.Value();
+			var match = transitionTable.Find (kvp => kvp.Key (current));
+			try {
+				match.Value ();
+			} catch (NullReferenceException ex) {
+				errors.addError(lexeme_begin_line, lexeme_begin_column, ErrorType.Lexical_Error, "Invalid input character");
+			}
+			//match.Value();
 		}
 
 

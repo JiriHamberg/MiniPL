@@ -49,6 +49,7 @@
     <Compile Include="models\TypeBindings.cs" />
     <Compile Include="interpreter\TypeModels.cs" />
     <Compile Include="models\Operators.cs" />
+    <Compile Include="UI\UIWrapper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -59,6 +60,7 @@
     <Folder Include="errors\" />
     <Folder Include="analyser\" />
     <Folder Include="interpreter\" />
+    <Folder Include="UI\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="examples\test.txt">

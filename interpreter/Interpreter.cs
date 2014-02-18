@@ -7,13 +7,9 @@ namespace CompilersProject
 	{
 		private SymbolTable symbolTable = new SymbolTable();
 		private ErrorContainer errors = new ErrorContainer();
-		private StreamReader input;
-		private StreamWriter output;
 
 		public Interpreter ()
 		{
-			this.input = new StreamReader(System.Console.OpenStandardInput());
-			this.output = new StreamWriter(System.Console.OpenStandardOutput());
 		}
 
 		public void Interprete(AbstractSyntaxTree ast)
@@ -54,7 +50,6 @@ namespace CompilersProject
 			} else if (stmt is Print) {
 				var print = (Print)stmt;
 				object evaluation = Evaluate(print.expression);
-				//output.Write(evaluation.ToString());
 				Console.Write (evaluation.ToString());
 			} else if (stmt is Assert) {
 				var assert = (Assert)stmt;
@@ -64,7 +59,13 @@ namespace CompilersProject
 			} else if (stmt is Read) {
 				var read = (Read)stmt;
 				//todo: convert to correct type
+				string type = symbolTable.GetVariableType(read.identifier);
 				object inputValue = readNextWord();
+				if(type == TypeBindings.PRIMITIVE_INTEGER_NAME) {
+					inputValue = int.Parse((string)inputValue);
+				} else if(type == TypeBindings.PRIMITIVE_BOOLEAN_NAME) {
+					inputValue = bool.Parse((string)inputValue);
+				}			
 				symbolTable.Assign(read.identifier, inputValue);
 			}
 		}
@@ -84,7 +85,6 @@ namespace CompilersProject
 				return TypeModels.EvaluateUnaryOperator(binding, unOp.oper.lexeme,
 				                                        Evaluate (unOp.operand));
 			} else if (expression is ExpressionLeaf) {
-				//Console.WriteLine("I AM LEAF");
 				var leaf = (ExpressionLeaf)expression;
 				switch(leaf.token.category) 
 				{
@@ -116,12 +116,13 @@ namespace CompilersProject
 		private string readNextWord ()
 		{
 			string s = "";
-			while (!input.EndOfStream) {
-				char next = (char)input.Read();
-				if(Char.IsWhiteSpace(next)) {
+			while (true) {
+				int c = Console.Read();
+				if(c >= 0 && !Char.IsWhiteSpace((char)c)) {
+					s += (char)c;
+				} else {
 					return s;
 				}
-				s += (char)next;
 			}
 			throw new EndOfStreamException("The input closed unexpectedly");
 		}
@@ -130,7 +131,6 @@ namespace CompilersProject
 		{
 			string s = "Assertion near line " + line;
 			s = s + " column " + column + " failed. Assertion \"" + e.ToString() + "\" was false.";
-			//output.WriteLine(s);
 			Console.WriteLine(s);
 		}
 	}

@@ -7,8 +7,23 @@ namespace CompilersProject
 	{
 		public static void Main (string[] args)
 		{
+			if (args.Length < 1) {
+				Console.WriteLine("Please specify a file to interprete.");
+				return;
+			}
 
-			String path = "examples/test.txt";
+			String path = args[0];
+			StreamReader file;
+			try {
+				file = File.OpenText(path);
+			} catch (FileNotFoundException ex) {
+				Console.WriteLine("No such file: " + path);
+				return;
+			}
+			UIWrapper ui = new UIWrapper(file);
+			ui.Run();
+
+			/*String path = "examples/test.txt";
 			StreamReader file = File.OpenText(path);
 			ErrorContainer errors = new ErrorContainer();
 			System.Console.WriteLine("Scanning file " + path + " ...");
@@ -43,15 +58,8 @@ namespace CompilersProject
 
 			Interpreter interpreter = new Interpreter();
 
-			interpreter.Interprete(ast);
+			interpreter.Interprete(ast);*/
 
-			/*while (scanner.HasNext ()) {
-				Token next = scanner.Next ();
-				String t = "Next Token: " + next.lexeme + "  " + next.category;
-				t = t + " at line " + next.line.ToString() + " column " + next.column.ToString();
-
-				System.Console.WriteLine(t);
-			}*/
 
 		}
 	}
