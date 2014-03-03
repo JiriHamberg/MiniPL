@@ -6,7 +6,7 @@ namespace CompilersProject
 {
 	public class Scanner
 	{
-		private const int END_OF_STREAM = -1;
+		private const int EndOfStream = -1;
 
 		private static Dictionary<string, Category> simpleLexemes = new Dictionary<string, Category>()
 		{
@@ -39,19 +39,19 @@ namespace CompilersProject
 		};
 
 		//list of transitions in order of presedence
-		private List<KeyValuePair<Func<char, bool>, Action>> transitionTable;
-		private ErrorContainer errors;
+		List<KeyValuePair<Func<char, bool>, Action>> transitionTable;
+		ErrorContainer errors;
 		//todo: maybe use linked list as the buffer instead of queue since C# queue sucks
-		private Queue<Token> tokenBuffer = new Queue<Token>();
-		private StreamReader charStream;
+		Queue<Token> tokenBuffer = new Queue<Token>();
+		StreamReader charStream;
 
-		private char current;
-		private int line = 1;
-		private int column = 1;
-		private String lexeme;
-		private Category category;
-		private int lexeme_begin_line = -1;
-		private int lexeme_begin_column = -1;
+		char current;
+		int line = 1;
+		int column = 1;
+		String lexeme;
+		Category category;
+		int lexemeBeginLine = -1;
+		int lexemeBeginColumn = -1;
 
 		/*
 		 * Public methods
@@ -62,59 +62,59 @@ namespace CompilersProject
 			this.transitionTable = new List<KeyValuePair<Func<char, bool>, Action>> ()
 			{
 				//simple one char lexemes
-				transition (
+				Transition (
 					c => simpleLexemes.ContainsKey(c.ToString()),
 					() => simpleLexemes.TryGetValue(current.ToString(), out category) ),
 
 				//identifier or reserved keyword
-				transition (
+				Transition (
 					c => Char.IsLetter(c),
-					() => readWhile ( x => !simpleLexemes.ContainsKey(x.ToString()) && x != '.' && !Char.IsWhiteSpace(x)) ),
+					() => ReadWhile ( x => !simpleLexemes.ContainsKey(x.ToString()) && x != '.' && !Char.IsWhiteSpace(x)) ),
 
 				//integer literal
-				transition (
+				Transition (
 					c => Char.IsNumber(c),
 					() => 
 						{
 							category = Category.Literal_Integer;
-							readWhile (x => Char.IsDigit(x));
+							ReadWhile (x => Char.IsDigit(x));
 						}),
 
 				//string literal
-				transition (
+				Transition (
 					c => c == '"', 
-					() => scanString () ),
+					() => ScanString () ),
 
 				//colon or assignment
-				transition (
+				Transition (
 					c => c == ':', 
 					() => 
 						{
-							if(peekChar () == '=') {
+							if(PeekChar () == '=') {
 									category = Category.Assignment;
-									lexeme += nextChar ();
+									lexeme += NextChar ();
 							} else {
 								category = Category.Colon;
 							}
 						}),
 
 				//for loop range
-				transition (
+				Transition (
 					c => c == '.', 
 					() =>
 						{
-							if(peekChar() == '.') {
+							if(PeekChar() == '.') {
 								category = Category.Loop_Range;
-								lexeme += nextChar();
+								lexeme += NextChar();
 							}
 						})
 			};
 
 			this.errors = errContainer;
 			this.charStream = charStream;
-			skipBlank ();
+			SkipBlank ();
 			while (!charStream.EndOfStream) {
-				tokenBuffer.Enqueue(scanNextToken());
+				tokenBuffer.Enqueue(ScanNextToken());
 			}
 		}
 
@@ -143,106 +143,106 @@ namespace CompilersProject
 		 * Private methods
 		 */ 
 
-		private Token scanNextToken ()
+		Token ScanNextToken ()
 		{
 			lexeme = "";
 			category = Category.NONE;
-			lexeme_begin_line = -1;
-			lexeme_begin_column = -1;
+			lexemeBeginLine = -1;
+			lexemeBeginColumn = -1;
 
 			if (charStream.EndOfStream) {
 				throw new EndOfStreamException();
 			}
 
-			readLexeme ();
-			skipBlank();
-			decideCategory(); 
+			ReadLexeme ();
+			SkipBlank();
+			DecideCategory(); 
 
 			Token token = new Token ();
 			token.Lexeme = lexeme;
 			token.Category = category;
-			token.Line = lexeme_begin_line;
-			token.Column = lexeme_begin_column;
+			token.Line = lexemeBeginLine;
+			token.Column = lexemeBeginColumn;
 			return token;
 		}
 
-		private void readLexeme ()
+		void ReadLexeme ()
 		{
 			if (charStream.EndOfStream) {
 				throw new EndOfStreamException ("Character stream ended unexpectedly");
 			}
 
-			current = nextChar ();
+			current = NextChar ();
 			lexeme += current;
-			lexeme_begin_column = column - 1;
-			lexeme_begin_line = line;
+			lexemeBeginColumn = column - 1;
+			lexemeBeginLine = line;
 			//find the action corresponding to the current character and invoke it
 			var match = transitionTable.Find (kvp => kvp.Key (current));
 			try {
 				match.Value ();
 			} catch (NullReferenceException ex) {
-				errors.AddError(lexeme_begin_line, lexeme_begin_column, ErrorType.Lexical_Error, "Invalid input character");
+				errors.AddError(lexemeBeginLine, lexemeBeginColumn, ErrorType.LexicalError, "Invalid input character");
 			}
 			//match.Value();
 		}
 
 
-		private void scanString ()
+		void ScanString ()
 		{
 			category = Category.Literal_String;
 			lexeme = "";
 			while(!charStream.EndOfStream) {
-				readWhile (x => x != '\\' && x != '"');
-				int lookup = peekChar ();
+				ReadWhile (x => x != '\\' && x != '"');
+				int lookup = PeekChar ();
 				if(lookup == '\\') {
-					nextChar ();
+					NextChar ();
 					if (!charStream.EndOfStream) {
-						switch(peekChar ()) {
+						switch(PeekChar ()) {
 							case 'n':
-								nextChar ();
+								NextChar ();
 								lexeme += '\n';
 								break;
 							case 't':
-								nextChar ();
+								NextChar ();
 								lexeme += '\t';
 								break;
 							default:
-								lexeme += nextChar ();
+								lexeme += NextChar ();
 								break;
 						}
 
 					} else {
-						errors.AddError (lexeme_begin_line, lexeme_begin_column, ErrorType.Lexical_Error, "Unclosed string literal");
+						errors.AddError (lexemeBeginLine, lexemeBeginColumn, ErrorType.LexicalError, "Unclosed string literal");
 					}
 				} else if (lookup == '"') { 
-					nextChar ();
+					NextChar ();
 					break;
 				} else {
-					errors.AddError (lexeme_begin_line, lexeme_begin_column, ErrorType.Lexical_Error, "Unclosed string literal");
+					errors.AddError (lexemeBeginLine, lexemeBeginColumn, ErrorType.LexicalError, "Unclosed string literal");
 				}
 			}
 		}
 
 
-		private void decideCategory () 
+		void DecideCategory () 
 		{
 			if (category != Category.NONE) { //already decided during readLexeme
 				return;
 			} else if (reservedWords.ContainsKey (lexeme)) {
 				reservedWords.TryGetValue (lexeme, out category);
-			} else if (isValidIdentifier (lexeme)){ 
+			} else if (IsValidIdentifier (lexeme)){ 
 				category = Category.Identifier;
 			} else{
 				category = Category.NONE; //marks invalid token
-				errors.AddError(line, column, ErrorType.Lexical_Error, "Invalid identifier: " + lexeme);
+				errors.AddError(line, column, ErrorType.LexicalError, "Invalid identifier: " + lexeme);
 			}
 		}
 
-		private void skipBlank ()
+		void SkipBlank ()
 		{
 			while (!charStream.EndOfStream) {
-				if (isBlank (peekChar ())){
-					nextChar ();
+				if (IsBlank (PeekChar ())){
+					NextChar ();
 					continue;
 				} else {
 					break;
@@ -250,27 +250,27 @@ namespace CompilersProject
 			}
 		}
 
-		private int peekChar ()
+		int PeekChar ()
 		{
 			if (charStream.EndOfStream) {
-				return END_OF_STREAM;
+				return EndOfStream;
 			}
 			return charStream.Peek();
 		}
 
-		private char nextChar ()
+		char NextChar ()
 		{
 			char c = (char)charStream.Read();
-			updateCursor (c);
+			UpdateCursor (c);
 			return c;
 		}
 
-		private bool isBlank (int c)
+		bool IsBlank (int c)
 		{
 			return c == ' ' || c == '\t'  || c == '\n';
 		}
 
-		private bool isValidIdentifier (string s)
+		bool IsValidIdentifier (string s)
 		{
 			char [] chars = s.ToCharArray ();
 			if (chars.Length < 1 || !Char.IsLetter (chars [0])) {
@@ -285,14 +285,14 @@ namespace CompilersProject
 			return true;
 		}
 
-		private void readWhile (Func<char, bool> condition)
+		void ReadWhile (Func<char, bool> condition)
 		{
-			while(peekChar() != END_OF_STREAM && condition((char)peekChar ())) {
-				lexeme += nextChar ();
+			while(PeekChar() != EndOfStream && condition((char)PeekChar ())) {
+				lexeme += NextChar ();
 			}
 		}
 
-		private void updateCursor (char c)
+		void UpdateCursor (char c)
 		{
 			if (c == '\n') {
 				line++;
@@ -303,7 +303,7 @@ namespace CompilersProject
 		}
 
 		//helper to hide nasty type-typing
-		private KeyValuePair<Func<char, bool>, Action> transition (Func<char, bool> condition, Action effect)
+		KeyValuePair<Func<char, bool>, Action> Transition (Func<char, bool> condition, Action effect)
 		{
 			return new KeyValuePair<Func<char, bool>, Action>(condition, effect);
 		}

@@ -6,13 +6,13 @@ namespace CompilersProject
 	public class UIWrapper
 	{
 
-		private StreamReader charStream;
-		private ErrorContainer errors = new ErrorContainer();
-		private Scanner scanner;
-		private Parser parser;
-		private AbstractSyntaxTree ast;
-		private SemanticAnalyser analyser;
-		private Interpreter interpreter = new Interpreter();
+		StreamReader charStream;
+		ErrorContainer errors = new ErrorContainer();
+		Scanner scanner;
+		Parser parser;
+		AbstractSyntaxTree ast;
+		SemanticAnalyser analyser;
+		Interpreter interpreter = new Interpreter();
 
 		public UIWrapper (StreamReader reader)
 		{
@@ -20,36 +20,36 @@ namespace CompilersProject
 		}
 
 		public void Run() {
-			if(!doLexicalAnalysis())
+			if(!DoLexicalAnalysis())
 				return;
-			if(!doParsing())
+			if(!DoParsing())
 				return;
-			if(!doSemanticAnylysis())
+			if(!DoSemanticAnylysis())
 				return;
 			interpreter.Interprete(ast);
 		}
 
-		private bool doLexicalAnalysis() {
+		bool DoLexicalAnalysis() {
 			this.scanner = new Scanner (charStream, errors);
 			string errMsg = "Your program contained some lexical errors and could not be interpreted:";
-			return doErrorCheckingAndWriteErrorMessages(errMsg, ErrorType.Lexical_Error);
+			return DoErrorCheckingAndWriteErrorMessages(errMsg, ErrorType.LexicalError);
 		}
 
-		private bool doParsing() {
+		bool DoParsing() {
 			this.parser = new Parser(scanner, errors);
 			this.ast = parser.Parse();
 			string errMsg = "Your program contained some syntax errors and could not be interpreted:";
-			return doErrorCheckingAndWriteErrorMessages(errMsg, ErrorType.Syntax_Error);
+			return DoErrorCheckingAndWriteErrorMessages(errMsg, ErrorType.SyntaxError);
 		}
 
-		private bool doSemanticAnylysis() {
+		bool DoSemanticAnylysis() {
 			this.analyser = new SemanticAnalyser(ast, errors);
 			analyser.DoTypeChecking();
 			string errMsg = "Your program contained some semantic errors and could not be interpreted:";
-			return doErrorCheckingAndWriteErrorMessages(errMsg, ErrorType.Semantic_Error);
+			return DoErrorCheckingAndWriteErrorMessages(errMsg, ErrorType.SemanticError);
 		}
 
-		private bool doErrorCheckingAndWriteErrorMessages(string msg, ErrorType errType) {
+		bool DoErrorCheckingAndWriteErrorMessages(string msg, ErrorType errType) {
 			var errList = errors.GetErrorsByType(errType);
 			if (errList.Count > 0) {
 				Console.WriteLine(msg);

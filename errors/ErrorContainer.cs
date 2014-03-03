@@ -10,7 +10,7 @@ namespace CompilersProject
 	public class ErrorContainer
 	{
 
-		private Dictionary<ErrorType, List<ErrorEntry>> errors = new Dictionary<ErrorType, List<ErrorEntry>>();
+		Dictionary<ErrorType, List<ErrorEntry>> errors = new Dictionary<ErrorType, List<ErrorEntry>>();
 
 		public ErrorContainer ()
 		{
@@ -40,8 +40,8 @@ namespace CompilersProject
 		public void AddError (ErrorEntry err)
 		{
 			List<ErrorEntry> errList = null;
-			if (!errors.TryGetValue (err.type, out errList)) {
-				throw new InvalidOperationException("Could not find error list for error type " + err.type);
+			if (!errors.TryGetValue (err.Type, out errList)) {
+				throw new InvalidOperationException("Could not find error list for error type " + err.Type);
 			}
 			errList.Add(err);
 		}
@@ -67,23 +67,23 @@ namespace CompilersProject
 	}
 
 	public enum ErrorType {
-		Lexical_Error,
-		Syntax_Error,
-		Semantic_Error,
-		Runtime_Error
+		LexicalError,
+		SyntaxError,
+		SemanticError,
+		RuntimeError
 	}
 
 	public class ErrorEntry
 	{
-		public Token? token = null;
-		public string message;
-		public ErrorType type;
+		public Token? NearToken = null;
+		public string Message;
+		public ErrorType Type;
 
 		public ErrorEntry (Token token, ErrorType type, string message)
 		{
-			this.token = token;
-			this.type = type;
-			this.message = message;
+			this.NearToken = token;
+			this.Type = type;
+			this.Message = message;
 		}
 
 		public ErrorEntry (int line, int column, ErrorType type, string message) : this(Token.ErrorToken(), type, message)
@@ -91,27 +91,27 @@ namespace CompilersProject
 			Token t = Token.ErrorToken();
 			t.Line = line;
 			t.Column = column;
-			this.token = t;
+			this.NearToken = t;
 		}
 
 		public ErrorEntry (ErrorType type, string message)
 		{
-			this.type = type;
-			this.message = message;
+			this.Type = type;
+			this.Message = message;
 		}
 
 		public override string ToString ()
 		{
 			string s = "";
-			if (token.HasValue) {
+			if (NearToken.HasValue) {
 				s = s + "Error near ";
-				if (token.Value.Category != Category.NONE) {
-					s = s + "\"" + token.Value.Lexeme + "\" on ";
+				if (NearToken.Value.Category != Category.NONE) {
+					s = s + "\"" + NearToken.Value.Lexeme + "\" on ";
 				}
 				s = s + string.Format ("line {0} column {1}: {2}",
-				                     token.Value.Line, token.Value.Column, message);
+				                     NearToken.Value.Line, NearToken.Value.Column, Message);
 			} else {
-				s = s + message;
+				s = s + Message;
 			}
 			return s;
 		}

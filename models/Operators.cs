@@ -16,11 +16,11 @@ namespace CompilersProject
 		public const string NOT = "!";
 	
 
-		private static List<string> binaryOperators = new List<string>() {
+		static List<string> binaryOperators = new List<string>() {
 			ADDITION, SUBSTRACTION, MULTIPLICATION, DIVISION, AND, EQUALITY, LESS
 		};
 
-		private static List<string> unaryOperators = new List<string>() {
+		static List<string> unaryOperators = new List<string>() {
 			NOT
 		};
 

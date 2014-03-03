@@ -75,12 +75,12 @@ namespace CompilersProject
 					return null;
 				}
 				if (leftType != rightType) {
-					errors.AddError (binOp.Oper, ErrorType.Semantic_Error, "Types of left and right operand do not match");
+					errors.AddError (binOp.Oper, ErrorType.SemanticError, "Types of left and right operand do not match");
 					return null;
 				}
 				var ret = rightType.Operate (binOp.Oper.Lexeme);
 				if(ret == null) {
-					errors.AddError (binOp.Oper, ErrorType.Semantic_Error, "Could not apply operator to given types");
+					errors.AddError (binOp.Oper, ErrorType.SemanticError, "Could not apply operator to given types");
 				}
 				return ret; 
 			} else if (expression is UnaryOperator) {
@@ -91,7 +91,7 @@ namespace CompilersProject
 				}
 				var ret = operandType.Operate (unOp.Oper.Lexeme);
 				if(ret == null) {
-					errors.AddError(unOp.Oper, ErrorType.Semantic_Error, "Could not apply operator to given type");
+					errors.AddError(unOp.Oper, ErrorType.SemanticError, "Could not apply operator to given type");
 				}
 				return ret;
 			} else if (expression is ExpressionLeaf) {
@@ -105,7 +105,7 @@ namespace CompilersProject
 					if (symbolTable.IsDeclared (leaf.Token)) {
 						return TypeBindings.GetTypeByName(symbolTable.GetVariableType(leaf.Token));
 					} else {
-						errors.AddError (leaf.Token, ErrorType.Semantic_Error, "Undeclared variable");
+						errors.AddError (leaf.Token, ErrorType.SemanticError, "Undeclared variable");
 						return null;
 					}
 				}

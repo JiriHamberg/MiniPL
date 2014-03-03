@@ -6,8 +6,8 @@ namespace CompilersProject
 	public class SymbolTable
 	{
 
-		private Dictionary<string, SymbolTableEntry> symbols = new Dictionary<string, SymbolTableEntry>();
-		private Stack<string> symbolLock = new Stack<string>();
+		Dictionary<string, SymbolTableEntry> symbols = new Dictionary<string, SymbolTableEntry>();
+		Stack<string> symbolLock = new Stack<string>();
 
 
 

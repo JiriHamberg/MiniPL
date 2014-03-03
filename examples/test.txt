@@ -1,11 +1,6 @@
-print "hello world!\n";
-
-var n : int;
 var i : int;
-print "I will count from n to 1. Give n:";
-read n;
 
-for i in 0 .. n - 1 do
-    print n - i;
-    print "\n";
+
+for i in 2+2 .. 3*5 do
+	print "hi \n";
 end for;

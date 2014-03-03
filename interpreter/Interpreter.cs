@@ -17,14 +17,14 @@ namespace CompilersProject
 			Interprete(ast.Statements);
 		}
 
-		private void Interprete (Statements stmts)
+		void Interprete (Statements stmts)
 		{
 			foreach (var stmt in stmts.StatementList) {
 				Interprete(stmt);
 			}
 		}
 
-		private void Interprete(Statement stmt)
+		void Interprete(Statement stmt)
 		{
 			if (stmt is Declaration) {
 				var declaration = (Declaration)stmt;
@@ -54,13 +54,13 @@ namespace CompilersProject
 			} else if (stmt is Assert) {
 				var assert = (Assert)stmt;
 				if(!(bool)Evaluate(assert.Assertion)) {
-					assertionMessage(assert.Location.Line, assert.Location.Column, assert.Assertion);
+					AssertionMessage(assert.Location.Line, assert.Location.Column, assert.Assertion);
 				}
 			} else if (stmt is Read) {
 				var read = (Read)stmt;
 				//todo: convert to correct type
 				string type = symbolTable.GetVariableType(read.Identifier);
-				object inputValue = readNextWord();
+				object inputValue = ReadNextWord();
 				if(type == TypeBindings.PRIMITIVE_INTEGER_NAME) {
 					inputValue = int.Parse((string)inputValue);
 				} else if(type == TypeBindings.PRIMITIVE_BOOLEAN_NAME) {
@@ -70,7 +70,7 @@ namespace CompilersProject
 			}
 		}
 
-		private object Evaluate(Expression expression) 
+		object Evaluate(Expression expression) 
 		{
 			if (expression is BinaryOperator) {
 				var binOp = (BinaryOperator)expression;
@@ -113,7 +113,7 @@ namespace CompilersProject
 		}
 
 
-		private string readNextWord ()
+		string ReadNextWord ()
 		{
 			string s = "";
 			while (true) {
@@ -124,10 +124,10 @@ namespace CompilersProject
 					return s;
 				}
 			}
-			throw new EndOfStreamException("The input closed unexpectedly");
+			//throw new EndOfStreamException("The input closed unexpectedly");
 		}
 
-		private void assertionMessage (int line, int column, Expression e)
+		void AssertionMessage (int line, int column, Expression e)
 		{
 			string s = "Assertion near line " + line;
 			s = s + " column " + column + " failed. Assertion \"" + e.ToString() + "\" was false.";
