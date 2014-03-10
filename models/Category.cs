@@ -37,6 +37,9 @@ namespace CompilersProject
 		Rigth_Bracket,
 		Loop_Range,
 
+		//end of file
+		End_Of_File,
+
 		//error
 		NONE
 	}

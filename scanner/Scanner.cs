@@ -6,9 +6,9 @@ namespace CompilersProject
 {
 	public class Scanner
 	{
-		private const int EndOfStream = -1;
+		const int EndOfStream = -1;
 
-		private static Dictionary<string, Category> simpleLexemes = new Dictionary<string, Category>()
+		static Dictionary<string, Category> simpleLexemes = new Dictionary<string, Category>()
 		{
 			{"(", Category.Left_Bracket},
 			{")", Category.Rigth_Bracket},
@@ -18,12 +18,12 @@ namespace CompilersProject
 			{Operators.ADDITION, Category.Binary_Operator},
 			{Operators.SUBSTRACTION, Category.Binary_Operator},
 			{Operators.MULTIPLICATION, Category.Binary_Operator},
-			{Operators.DIVISION, Category.Binary_Operator},
+			//{Operators.DIVISION, Category.Binary_Operator},
 			{Operators.NOT, Category.Unary_Operator},
 			{";", Category.Semicolon}
 		};
 
-		private static Dictionary<String, Category> reservedWords = new Dictionary<string, Category>()
+		static Dictionary<String, Category> reservedWords = new Dictionary<string, Category>()
 		{
 			{"for", Category.Keyword_For},
 			{"do", Category.Keyword_Do},
@@ -69,7 +69,7 @@ namespace CompilersProject
 				//identifier or reserved keyword
 				Transition (
 					c => Char.IsLetter(c),
-					() => ReadWhile ( x => !simpleLexemes.ContainsKey(x.ToString()) && x != '.' && !Char.IsWhiteSpace(x)) ),
+					() => ReadWhile ( x => Char.IsLetterOrDigit(x) || x =='_')),    //x => !simpleLexemes.ContainsKey(x.ToString()) && x != '.' && !Char.IsWhiteSpace(x)) ),
 
 				//integer literal
 				Transition (
@@ -97,6 +97,38 @@ namespace CompilersProject
 								category = Category.Colon;
 							}
 						}),
+				//inline comment, multiline comment or division operator
+				Transition (
+					c => c == '/',
+					() =>
+						{
+							if(PeekChar() == '/') {
+								SkipWhile(x => x != '\n' );
+								SkipBlank();
+								ScanNextToken();
+							} else if(PeekChar () == '*') {
+								while(true) {
+									SkipWhile(x => x != '*');
+									if(charStream.EndOfStream) {
+										errors.AddError(lexemeBeginLine, lexemeBeginColumn, ErrorType.LexicalError, "Unclosed multiline comment");
+										category = Category.NONE;
+										lexeme = "End_Of_File";
+										return;
+									}
+									NextChar();
+									if(PeekChar () == '/') {
+										NextChar ();
+										SkipBlank();
+										break;
+									}
+								}
+								ScanNextToken();
+							} else {
+								//lexeme += NextChar();
+								category = Category.Binary_Operator;
+							}							
+						}
+					),
 
 				//for loop range
 				Transition (
@@ -116,6 +148,7 @@ namespace CompilersProject
 			while (!charStream.EndOfStream) {
 				tokenBuffer.Enqueue(ScanNextToken());
 			}
+			tokenBuffer.Enqueue(new Token(Category.End_Of_File, "END_OF_FILE", line, column));
 		}
 
 		public Token Next ()
@@ -289,6 +322,13 @@ namespace CompilersProject
 		{
 			while(PeekChar() != EndOfStream && condition((char)PeekChar ())) {
 				lexeme += NextChar ();
+			}
+		}
+
+		void SkipWhile (Func<char, bool> condition)
+		{
+			while (PeekChar () != EndOfStream && condition((char)PeekChar ())) {
+				NextChar ();
 			}
 		}
 

@@ -13,7 +13,7 @@ namespace CompilersProject
 	public class ExpressionBuilder
 	{
 
-		private static Dictionary<string, int> precedence = new Dictionary<string, int>() {
+		static Dictionary<string, int> precedence = new Dictionary<string, int>() {
 			{Operators.NOT, 1},
 			{Operators.EQUALITY, 2},
 			{Operators.LESS, 2},
@@ -24,11 +24,11 @@ namespace CompilersProject
 			{Operators.DIVISION, 5}
 		};
 
-		private Stack<Token> operStack = new Stack<Token>();
-		private Stack<Token> inputStack = new Stack<Token>();
-		private Stack<Token> outputStack = new Stack<Token>();
+		Stack<Token> operStack = new Stack<Token>();
+		Stack<Token> inputStack = new Stack<Token>();
+		Stack<Token> outputStack = new Stack<Token>();
 
-		private ErrorContainer errors;
+		ErrorContainer errors;
 
 		public ExpressionBuilder (ErrorContainer errors)
 		{
@@ -43,12 +43,12 @@ namespace CompilersProject
 
 		public Expression Build ()
 		{
-			shuntingYard();
-			return buildExpression ();
+			ShuntingYard();
+			return BuildExpression ();
 		}
 
 		//builds the expression subtree recursively
-		private Expression buildExpression ()
+		Expression BuildExpression ()
 		{
 			Expression ret = null;
 
@@ -64,12 +64,12 @@ namespace CompilersProject
 			if (t.Category == Category.Binary_Operator) {
 				ret = new BinaryOperator ();
 				((BinaryOperator)ret).Oper = t;
-				((BinaryOperator)ret).LeftOperand = buildExpression ();
-				((BinaryOperator)ret).RightOperand = buildExpression ();
+				((BinaryOperator)ret).LeftOperand = BuildExpression ();
+				((BinaryOperator)ret).RightOperand = BuildExpression ();
 			} else if (t.Category == Category.Unary_Operator) {
 				ret = new UnaryOperator ();
 				((UnaryOperator)ret).Oper = t;
-				((UnaryOperator)ret).Operand = buildExpression ();
+				((UnaryOperator)ret).Operand = BuildExpression ();
 			} else {
 				ret = new ExpressionLeaf();
 				((ExpressionLeaf)ret).Token = t;
@@ -78,7 +78,7 @@ namespace CompilersProject
 		}
 
 
-		private void shuntingYard ()
+		void ShuntingYard ()
 		{
 			while (inputStack.Count > 0) {
 				Token t = inputStack.Pop ();
