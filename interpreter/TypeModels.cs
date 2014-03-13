@@ -71,7 +71,6 @@ namespace CompilersProject
 			TypeModel model;
 			Func<object, object, object> binOp;
 			if (!models.TryGetValue (type, out model)) {
-				//errors.addError (ErrorType.Runtime_Error, "No implementation for typebinding " + type.ToString ());
 				throw new InvalidOperationException("No implementation for typebinding " + type.ToString ());
 			}
 			if (!model.BinaryOperatorImplementations.TryGetValue (oper, out binOp)) {

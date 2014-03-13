@@ -66,18 +66,6 @@ namespace CompilersProject
 		{
 			AbstractSyntaxTree ast = new AbstractSyntaxTree();
 			GetNextToken ();
-			/*while (token.Category != Category.End_Of_File) { //scanner.HasNext()
-				var follow = Set (Category.End_Of_File);
-				var starters = Set ();
-				try {
-					ast.Statements.MergeStatements(ParseStatements (follow, starters ));
-				} catch(SyntaxErrorException) {
-					//there is no upper level parser method so this should not happen
-					Console.WriteLine("File ended unexpectedly");
-					//throw new InvalidProgramException("Parser failed to merge statements");
-
-				}
-			}*/
 			ast.Statements = ParseStatements(Set (Category.End_Of_File), Set ());
 			return ast;
 		}
@@ -85,11 +73,8 @@ namespace CompilersProject
 
 		void GetNextToken ()
 		{
-			//todo: handle end of stream !!!
 			if (scanner.HasNext ()) {
 				token = scanner.Next ();
-			} else {
-				//token = Token.ErrorToken();
 			}
 		}
 
@@ -128,7 +113,6 @@ namespace CompilersProject
 
 		ASTNode Recover (ISet<Category> first, ISet<Category> follow, ISet<Category> starters, Func<ASTNode> firstAction )
 		{
-			//GetNextToken(); 
 			while(true) {
 				if(first.Contains(token.Category)) {
 					return firstAction();
@@ -227,7 +211,6 @@ namespace CompilersProject
 				errors.AddError(token, ErrorType.SyntaxError, "Expecting a statement");
 				throw new SyntaxErrorException();
 			}
-			//return null;
 		}
 
 		Declaration ParseDeclaration (ISet<Category> follow, ISet<Category> starters)
@@ -260,7 +243,6 @@ namespace CompilersProject
 						() => ParseExpression (Set (Category.Semicolon), starters));
 				}
 			} else {
-				//System.Console.WriteLine("INVALID ASSIGNMENT!!!");
 				errors.AddError(token, ErrorType.SyntaxError, "Invalid assignment; expression expected");
 				throw new SyntaxErrorException();
 			}
@@ -370,10 +352,6 @@ namespace CompilersProject
 				Expect (Category.Rigth_Bracket);
 				builder.Offer (accepted);
 			} else {
-				/*addError(token, Category.Literal_Integer, 
-						 Category.Literal_String,
-						 Category.Identifier,
-				         Category.Left_Bracket);*/
 				errors.AddError(token, ErrorType.SyntaxError, "Expecting an operand");
 			}
 		}

@@ -5,8 +5,8 @@ namespace CompilersProject
 {
 	public class Interpreter
 	{
-		private SymbolTable symbolTable = new SymbolTable();
-		private ErrorContainer errors = new ErrorContainer();
+		SymbolTable symbolTable = new SymbolTable();
+		ErrorContainer errors = new ErrorContainer();
 
 		public Interpreter ()
 		{
@@ -58,7 +58,6 @@ namespace CompilersProject
 				}
 			} else if (stmt is Read) {
 				var read = (Read)stmt;
-				//todo: convert to correct type
 				string type = symbolTable.GetVariableType(read.Identifier);
 				object inputValue = ReadNextWord();
 				if(type == TypeBindings.PRIMITIVE_INTEGER_NAME) {
@@ -106,9 +105,6 @@ namespace CompilersProject
 						return null;
 				}
 			}
-			Console.WriteLine(expression.GetType());
-			Console.WriteLine("Category: " + expression.Head().Category);
-			Console.WriteLine ("Line " + expression.Head().Line);
 			throw new InvalidOperationException("Unrecognized expression class");
 		}
 
@@ -124,7 +120,6 @@ namespace CompilersProject
 					return s;
 				}
 			}
-			//throw new EndOfStreamException("The input closed unexpectedly");
 		}
 
 		void AssertionMessage (int line, int column, Expression e)

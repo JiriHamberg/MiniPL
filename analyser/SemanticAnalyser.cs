@@ -5,9 +5,9 @@ namespace CompilersProject
 {
 	public class SemanticAnalyser
 	{
-		private AbstractSyntaxTree ast;
-		private ErrorContainer errors;
-		private SymbolTable symbolTable = new SymbolTable();
+		AbstractSyntaxTree ast;
+		ErrorContainer errors;
+		SymbolTable symbolTable = new SymbolTable();
 
 		public SemanticAnalyser (AbstractSyntaxTree ast, ErrorContainer errors)
 		{
